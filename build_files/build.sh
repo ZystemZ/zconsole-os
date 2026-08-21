@@ -18,13 +18,17 @@ echo "Applying ZConsole OS Branding..."
 chmod 644 /usr/share/wallpapers/zconsole/wallpaper.png
 chmod 644 /usr/share/icons/zconsole/icons.png
 chmod 644 /usr/share/zconsole/*.png
-chmod 644 /etc/os-release
 chmod 644 /etc/zconsole/*.json
+
+# Edit existing os-release to maintain compatibility with bootc-image-builder
+sed -i 's/^NAME=.*/NAME="ZConsole OS"/' /etc/os-release
+sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="ZConsole OS 1.0 (Powered by Bazzite)"/' /etc/os-release
+echo 'BAZZITE_CREDITS="Based on Bazzite (https://bazzite.gg) and the Universal Blue project. Special thanks to the Bazzite team for the incredible gaming base."' >> /etc/os-release
 
 # Symbolic link for the logo
 ln -sf /usr/share/zconsole/logo.png /usr/share/pixmaps/zconsole-logo.png
 
-### ZConsole Executables and Scripts
+### ZGSDK, Cloud Sync and Z-GameStore Scripts
 echo "Configuring ZConsole Executables..."
 chmod +x /usr/bin/zgsdk
 chmod +x /usr/bin/zconsole-cloud-sync
@@ -63,4 +67,4 @@ dnf5 install -y --skip-unavailable \
 # Enable necessary services
 systemctl enable podman.socket
 
-echo "ZConsole OS build completed successfully! Z-GameStore GUI and Setup ready."
+echo "ZConsole OS build completed successfully! Branding applied via safe patching."
