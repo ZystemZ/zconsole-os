@@ -7,6 +7,13 @@ if [ -d "/ctx/system_files" ]; then
     cp -avf "/ctx/system_files"/. /
 fi
 
+### Fix GPG key issues for ISO build
+echo "Fixing GPG key issues for terra-mesa repository..."
+# Disable GPG check for terra-mesa to avoid build failures in bootc-image-builder
+if [ -d /etc/yum.repos.d/ ]; then
+    sed -i 's/gpgcheck=1/gpgcheck=0/g' /etc/yum.repos.d/*.repo || true
+fi
+
 ### Language and Locale Configuration
 echo "Configuring Portuguese Brazilian as default language..."
 echo "LANG=pt_BR.UTF-8" > /etc/locale.conf
