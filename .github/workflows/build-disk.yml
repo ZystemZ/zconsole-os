@@ -92,6 +92,7 @@ jobs:
         if: inputs.upload-to-s3 != true && github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
+          name: artifact-${{ matrix.disk-type }}
           path: ${{ steps.build.outputs.output-directory }}
           if-no-files-found: error
           retention-days: 7
@@ -116,4 +117,7 @@ jobs:
             1. Baixe o arquivo `.iso` abaixo.
             2. Use o Rufus (modo DD) para gravar em um pendrive de 16GB+.
             3. Divirta-se!
-          files: ${{ steps.build.outputs.output-directory }}/*
+          files: |
+            ${{ steps.build.outputs.output-directory }}/**/*.iso
+            ${{ steps.build.outputs.output-directory }}/**/*.qcow2
+            ${{ steps.build.outputs.output-directory }}/**/*.json
