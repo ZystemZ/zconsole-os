@@ -1,27 +1,61 @@
 {
-  "catalog_version": "1.0",
-  "source": "ZConsole Curated Free & Abandonware Initiative",
+  "catalog_version": "2.0",
   "games": [
     {
-      "id": "doom-freedoom",
-      "title": "Freedoom: Phase 1 & 2",
-      "system": "ports",
-      "description": "A complete free-content first-person shooter game based on the legendary Doom engine.",
-      "download_url": "https://github.com/freedoom/freedoom/releases/download/v13.0/freedoom-13.0.zip"
-    },
-    {
-      "id": "commander-keen-4",
-      "title": "Commander Keen 4: Secret of the Oracle",
-      "system": "dosbox",
-      "description": "Classic platformer by id Software, hosted as legal shareware/abandonware.",
-      "download_url": "https://www.myabandonware.com/media/captures/C/commander-keen-4-secret-of-the-oracle/commander-keen-4_5.zip"
+      "id": "doom-shareware",
+      "title": "Doom (Shareware v1.9)",
+      "platform": "dos",
+      "description": "The legendary FPS that defined a generation.",
+      "download_url": "https://www.myabandonware.com/media/captures/D/doom/doom_4.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/d/doom-1nd/doom_1.png"
     },
     {
       "id": "prince-of-persia",
       "title": "Prince of Persia (1989)",
-      "system": "dosbox",
-      "description": "Groundbreaking cinematic platformer game set in ancient Persia.",
-      "download_url": "https://www.myabandonware.com/media/captures/P/prince-of-persia/prince-of-persia_3.zip"
+      "platform": "dos",
+      "description": "Cinematic platformer classic.",
+      "download_url": "https://www.myabandonware.com/media/captures/P/prince-of-persia/prince-of-persia_3.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/p/prince-of-persia-pd/prince-of-persia_2.png"
+    },
+    {
+      "id": "simcity-2000",
+      "title": "SimCity 2000",
+      "platform": "dos",
+      "description": "The ultimate city building simulator.",
+      "download_url": "https://www.myabandonware.com/media/captures/S/simcity-2000/simcity-2000_5.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/s/simcity-2000-1re/simcity-2000_1.png"
+    },
+    {
+      "id": "wolfenstein-3d",
+      "title": "Wolfenstein 3D (Shareware)",
+      "platform": "dos",
+      "description": "The grandfather of 3D shooters.",
+      "download_url": "https://www.myabandonware.com/media/captures/W/wolfenstein-3d/wolfenstein-3d_2.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/w/wolfenstein-3d-1p7/wolfenstein-3d_1.png"
+    },
+    {
+      "id": "jazz-jackrabbit",
+      "title": "Jazz Jackrabbit",
+      "platform": "dos",
+      "description": "High-speed platforming action.",
+      "download_url": "https://www.myabandonware.com/media/captures/J/jazz-jackrabbit/jazz-jackrabbit_4.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/j/jazz-jackrabbit-260/jazz-jackrabbit_1.png"
+    },
+    {
+      "id": "alone-in-the-dark",
+      "title": "Alone in the Dark",
+      "platform": "dos",
+      "description": "The original survival horror.",
+      "download_url": "https://www.myabandonware.com/media/captures/A/alone-in-the-dark/alone-in-the-dark_6.zip",
+      "image_url": "https://www.myabandonware.com/media/screenshots/a/alone-in-the-dark-1p6/alone-in-the-dark_1.png"
+    },
+    {
+      "id": "freedoom",
+      "title": "Freedoom Phase 1 & 2",
+      "platform": "ports",
+      "description": "Free and open source replacement for Doom.",
+      "download_url": "https://github.com/freedoom/freedoom/releases/download/v13.0/freedoom-13.0.zip",
+      "image_url": "https://freedoom.github.io/img/screenshots/freedoom2-01.png"
     }
   ]
 }
