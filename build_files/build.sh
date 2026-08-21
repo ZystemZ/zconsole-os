@@ -3,25 +3,31 @@
 set -ouex pipefail
 
 # Copy the contents of system_files/ of the git repo to /
-cp -avf "/ctx/system_files"/. /
+# Ensure /ctx/system_files exists before copying
+if [ -d "/ctx/system_files" ]; then
+    cp -avf "/ctx/system_files"/. /
+fi
 
-### Install packages
+### Install ZConsole OS Packages
+echo "Installing ZConsole OS components..."
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+# Install emulators and tools
+dnf5 install -y \
+    retroarch \
+    retroarch-assets-ozone \
+    pcsx2 \
+    dolphin-emu \
+    duckstation \
+    ppsspp \
+    dosbox \
+    scummvm \
+    mame \
+    python3-pyserial \
+    htop \
+    neofetch \
+    tmux
 
-# this installs a package from fedora repos
-dnf5 install -y tmux
-
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
-
+# Enable necessary services
 systemctl enable podman.socket
+
+echo "ZConsole OS build completed!"
