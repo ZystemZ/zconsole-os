@@ -8,6 +8,12 @@ if [ -d "/ctx/system_files" ]; then
     cp -avf "/ctx/system_files"/. /
 fi
 
+### Language and Locale Configuration
+echo "Configuring Portuguese Brazilian as default language..."
+# Generate locales
+echo "LANG=pt_BR.UTF-8" > /etc/locale.conf
+echo "KEYMAP=br-abnt2" > /etc/vconsole.conf
+
 ### Install ZConsole OS Packages
 echo "Installing ZConsole OS components..."
 
