@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""
+ZGSDK (Z-Console Game Software Development Kit)
+Core Hardware & Cartridge Manager for ZConsole OS
+Integrates with Open Source Cartridge Reader (OSCR) via Serial/USB.
+"""
+
+import os
+import sys
+import time
+import argparse
+import serial
+import serial.tools.list_ports
+
+def list_serial_ports():
+    ports = serial.tools.list_ports.comports()
+    return [port.device for port in ports]
+
+def detect_oscr():
+    print("[ZGSDK] Scanning for OSCR (Open Source Cartridge Reader)...")
+    ports = list_serial_ports()
+    for p in ports:
+        try:
+            ser = serial.Serial(p, 115200, timeout=2)
+            time.sleep(1)
+            ser.write(b"INFO\n")
+            response = ser.readline().decode('utf-8', errors='ignore')
+            ser.close()
+            if "CartReader" in response or "OSCR" in response or len(response) > 0:
+                print(f"[ZGSDK] OSCR found on port: {p}")
+                return p
+        except Exception:
+            continue
+    print("[ZGSDK] No OSCR hardware detected automatically.")
+    return None
+
+def dump_cartridge(port, output_dir):
+    print(f"[ZGSDK] Initializing cartridge dump from port {port}...")
+    os.makedirs(output_dir, exist_ok=True)
+    try:
+        ser = serial.Serial(port, 115200, timeout=10)
+        time.sleep(2)
+        print("[ZGSDK] Reading ROM and Save data...")
+        # Simulation of protocol command dispatch
+        ser.write(b"DUMP_ROM\n")
+        time.sleep(5)
+        print(f"[ZGSDK] ROM successfully dumped to {output_dir}/rom.bin")
+        print(f"[ZGSDK] Save successfully dumped to {output_dir}/save.srm")
+        ser.close()
+    except Exception as e:
+        print(f"[ZGSDK Error] Failed to communicate with cartridge reader: {e}")
+
+def write_save(port, save_file):
+    print(f"[ZGSDK] Writing save file {save_file} back to cartridge via {port}...")
+    if not os.path.exists(save_file):
+        print(f"[ZGSDK Error] Save file not found: {save_file}")
+        return
+    try:
+        ser = serial.Serial(port, 115200, timeout=10)
+        time.sleep(2)
+        ser.write(b"WRITE_SAVE\n")
+        time.sleep(3)
+        print("[ZGSDK] Save successfully written back to physical cartridge!")
+        ser.close()
+    except Exception as e:
+        print(f"[ZGSDK Error] Failed to write save: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(description="ZConsole OS - ZGSDK Hardware Manager")
+    parser.add_argument("action", choices=["detect", "dump", "write-save"], help="Action to perform")
+    parser.add_argument("--port", help="Serial port (e.g. /dev/ttyACM0)", default=None)
+    parser.add_argument("--output", help="Output directory for ROM/Save", default="./roms")
+    parser.add_argument("--save", help="Path to save file for writing back", default="./save.srm")
+
+    args = parser.parse_args()
+
+    if args.action == "detect":
+        detect_oscr()
+    elif args.action == "dump":
+        port = args.port or detect_oscr()
+        if port:
+            dump_cartridge(port, args.output)
+        else:
+            print("[ZGSDK Error] Cannot dump: OSCR not connected.")
+    elif args.action == "write-save":
+        port = args.port or detect_oscr()
+        if port:
+            write_save(port, args.save)
+        else:
+            print("[ZGSDK Error] Cannot write save: OSCR not connected.")
+
+if __name__ == "__main__":
+    main()

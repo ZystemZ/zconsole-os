@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""
+ZConsole OS - Cloud Save Synchronizer
+Synchronizes emulator save files with remote storage (Google Drive, Dropbox, etc.) via Rclone.
+"""
+
+import os
+import subprocess
+import argparse
+
+DEFAULT_SAVE_DIR = os.path.expanduser("~/Emulation/saves")
+REMOTE_NAME = "zconsole_cloud"
+REMOTE_PATH = "ZConsoleSaves"
+
+def check_rclone():
+    try:
+        subprocess.run(["rclone", "version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return True
+    except (subprocess.SubprocessError, FileNotFoundError):
+        return False
+
+def sync_up(save_dir, remote):
+    print(f"[ZConsole Cloud] Uploading local saves from {save_dir} to {remote}:{REMOTE_PATH}...")
+    if not check_rclone():
+        print("[ZConsole Cloud Error] Rclone is not installed or configured.")
+        return
+    cmd = ["rclone", "sync", save_dir, f"{remote}:{REMOTE_PATH}", "--progress"]
+    subprocess.run(cmd)
+    print("[ZConsole Cloud] Sync up completed!")
+
+def sync_down(save_dir, remote):
+    print(f"[ZConsole Cloud] Downloading remote saves from {remote}:{REMOTE_PATH} to {save_dir}...")
+    if not check_rclone():
+        print("[ZConsole Cloud Error] Rclone is not installed or configured.")
+        return
+    os.makedirs(save_dir, exist_ok=True)
+    cmd = ["rclone", "sync", f"{remote}:{REMOTE_PATH}", save_dir, "--progress"]
+    subprocess.run(cmd)
+    print("[ZConsole Cloud] Sync down completed!")
+
+def main():
+    parser = argparse.ArgumentParser(description="ZConsole OS Cloud Save Sync")
+    parser.add_argument("direction", choices=["up", "down"], help="Upload (up) or Download (down) saves")
+    parser.add_argument("--dir", default=DEFAULT_SAVE_DIR, help="Local saves directory")
+    parser.add_argument("--remote", default=REMOTE_NAME, help="Rclone remote name")
+
+    args = parser.parse_args()
+
+    if args.direction == "up":
+        sync_up(args.dir, args.remote)
+    else:
+        sync_down(args.dir, args.remote)
+
+if __name__ == "__main__":
+    main()

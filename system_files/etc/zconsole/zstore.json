@@ -1,0 +1,59 @@
+{
+  "store_name": "Z-Store",
+  "version": "1.0",
+  "description": "Curated applications and emulators for ZConsole OS",
+  "categories": [
+    {
+      "name": "Emulators",
+      "apps": [
+        {
+          "id": "org.libretro.RetroArch",
+          "name": "RetroArch",
+          "description": "Multi-system retro gaming emulator frontend",
+          "type": "flatpak"
+        },
+        {
+          "id": "net.pcsx2.PCSX2",
+          "name": "PCSX2",
+          "description": "PlayStation 2 emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "org.DolphinEmu.dolphin-emu",
+          "name": "Dolphin",
+          "description": "GameCube and Wii emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "rip.duckstation.DuckStation",
+          "name": "DuckStation",
+          "description": "PlayStation 1 emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "org.ppsspp.PPSSPP",
+          "name": "PPSSPP",
+          "description": "PlayStation Portable emulator",
+          "type": "flatpak"
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "apps": [
+        {
+          "id": "org.rclone.rclone",
+          "name": "Rclone",
+          "description": "Cloud storage synchronization utility",
+          "type": "flatpak"
+        },
+        {
+          "id": "com.discordapp.Discord",
+          "name": "Discord",
+          "description": "Voice and text chat for gaming",
+          "type": "flatpak"
+        }
+      ]
+    }
+  ]
+}

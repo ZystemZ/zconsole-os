@@ -15,15 +15,25 @@ fi
 
 ### ZConsole OS Branding and Identity
 echo "Applying ZConsole OS Branding..."
-
-# Set permissions for visual assets
 chmod 644 /usr/share/wallpapers/zconsole/wallpaper.png
 chmod 644 /usr/share/icons/zconsole/icons.png
 chmod 644 /usr/share/zconsole/*.png
 chmod 644 /etc/os-release
+chmod 644 /etc/zconsole/zstore.json
 
-# Symbolic link for the logo to be used by the system
+# Symbolic link for the logo
 ln -sf /usr/share/zconsole/logo.png /usr/share/pixmaps/zconsole-logo.png
+
+### ZGSDK and Cloud Sync Scripts
+echo "Configuring ZGSDK and ZConsole Scripts..."
+chmod +x /usr/bin/zgsdk
+chmod +x /usr/bin/zconsole-cloud-sync
+
+### Boot Animation Setup
+echo "Configuring ZConsole Startup Animation..."
+# Link the animation for Steam Game Mode (if applicable)
+mkdir -p /usr/share/bazzite/overrides
+ln -sf /usr/share/zconsole/boot_animation.mp4 /usr/share/bazzite/overrides/startup_animation.mp4
 
 ### Language and Locale Configuration
 echo "Configuring Portuguese Brazilian as default language..."
@@ -36,6 +46,7 @@ dnf5 install -y --skip-unavailable \
     retroarch \
     retroarch-assets \
     python3-pyserial \
+    rclone \
     htop \
     fastfetch \
     tmux \
@@ -46,4 +57,4 @@ dnf5 install -y --skip-unavailable \
 # Enable necessary services
 systemctl enable podman.socket
 
-echo "ZConsole OS build completed successfully! Powered by Bazzite."
+echo "ZConsole OS build completed successfully! Advanced features integrated."
