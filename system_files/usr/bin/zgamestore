@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""
+ZConsole OS - Z-GameStore Client
+Allows users to browse and download curated free and abandonware games (inspired by MyAbandonware).
+Automatically places ROMs and files into EmuDeck directory structure.
+"""
+
+import os
+import sys
+import json
+import urllib.request
+import argparse
+
+CATALOG_PATH = "/etc/zconsole/games_catalog.json"
+ROMs_DIR = os.path.expanduser("~/Emulation/roms")
+
+def load_catalog():
+    if os.path.exists(CATALOG_PATH):
+        with open(CATALOG_PATH, "r") as f:
+            return json.load(f)
+    # Default fallback catalog if file is missing
+    return {
+        "games": [
+            {
+                "id": "doom-freedoom",
+                "title": "Freedoom: Phase 1 & 2",
+                "system": "ports",
+                "description": "Complete free-content first-person shooter based on the Doom engine.",
+                "download_url": "https://github.com/freedoom/freedoom/releases/download/v13.0/freedoom-13.0.zip"
+            },
+            {
+                "id": "abandonware-sample",
+                "title": "Classic Retro Adventure (Sample)",
+                "system": "dosbox",
+                "description": "Exemplary abandonware adventure title compatible with DOSBox.",
+                "download_url": "https://www.myabandonware.com/media/captures/C/commander-keen-4-secret-of-the-oracle/commander-keen-4_5.zip"
+            }
+        ]
+    }
+
+def list_games():
+    catalog = load_catalog()
+    print("\n=== Z-GameStore Catalog (Free & Abandonware) ===")
+    for idx, game in enumerate(catalog["games"], 1):
+        print(f"[{idx}] {game['title']} ({game['system'].upper()})")
+        print(f"    Desc: {game['description']}")
+        print(f"    ID: {game['id']}\n")
+
+def download_game(game_id):
+    catalog = load_catalog()
+    target_game = None
+    for game in catalog["games"]:
+        if game["id"] == game_id:
+            target_game = game
+            break
+
+    if not target_game:
+        print(f"[Z-GameStore Error] Game ID '{game_id}' not found in catalog.")
+        return
+
+    system_folder = os.path.join(ROMs_DIR, target_game["system"])
+    os.makedirs(system_folder, exist_ok=True)
+    
+    zip_path = os.path.join(system_folder, f"{game_id}.zip")
+    print(f"[Z-GameStore] Downloading '{target_game['title']}'...")
+    
+    try:
+        urllib.request.urlretrieve(target_game["download_url"], zip_path)
+        print(f"[Z-GameStore] Successfully downloaded to {zip_path}!")
+        print(f"[Z-GameStore] Ready for emulation under {target_game['system'].upper()}!")
+    except Exception as e:
+        print(f"[Z-GameStore Error] Failed to download game: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(description="ZConsole OS - Z-GameStore")
+    parser.add_argument("action", choices=["list", "get"], help="List available games or download a game")
+    parser.add_argument("--id", help="Game ID to download", default=None)
+
+    args = parser.parse_args()
+
+    if args.action == "list":
+        list_games()
+    elif args.action == "get":
+        if args.id:
+            download_game(args.id)
+        else:
+            print("[Z-GameStore Error] Please specify a game ID using --id")
+
+if __name__ == "__main__":
+    main()

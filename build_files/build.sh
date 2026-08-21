@@ -20,14 +20,16 @@ chmod 644 /usr/share/icons/zconsole/icons.png
 chmod 644 /usr/share/zconsole/*.png
 chmod 644 /etc/os-release
 chmod 644 /etc/zconsole/zstore.json
+chmod 644 /etc/zconsole/games_catalog.json
 
 # Symbolic link for the logo
 ln -sf /usr/share/zconsole/logo.png /usr/share/pixmaps/zconsole-logo.png
 
-### ZGSDK and Cloud Sync Scripts
-echo "Configuring ZGSDK and ZConsole Scripts..."
+### ZGSDK, Cloud Sync and Z-GameStore Scripts
+echo "Configuring ZConsole Executables..."
 chmod +x /usr/bin/zgsdk
 chmod +x /usr/bin/zconsole-cloud-sync
+chmod +x /usr/bin/zgamestore
 
 ### Boot Animation Setup
 echo "Configuring ZConsole Startup Animation..."
@@ -57,4 +59,4 @@ dnf5 install -y --skip-unavailable \
 # Enable necessary services
 systemctl enable podman.socket
 
-echo "ZConsole OS build completed successfully! Z-Store 2.0 and EmuDeck integration ready."
+echo "ZConsole OS build completed successfully! Z-GameStore (Abandonware) integrated."

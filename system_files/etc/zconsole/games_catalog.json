@@ -1,0 +1,27 @@
+{
+  "catalog_version": "1.0",
+  "source": "ZConsole Curated Free & Abandonware Initiative",
+  "games": [
+    {
+      "id": "doom-freedoom",
+      "title": "Freedoom: Phase 1 & 2",
+      "system": "ports",
+      "description": "A complete free-content first-person shooter game based on the legendary Doom engine.",
+      "download_url": "https://github.com/freedoom/freedoom/releases/download/v13.0/freedoom-13.0.zip"
+    },
+    {
+      "id": "commander-keen-4",
+      "title": "Commander Keen 4: Secret of the Oracle",
+      "system": "dosbox",
+      "description": "Classic platformer by id Software, hosted as legal shareware/abandonware.",
+      "download_url": "https://www.myabandonware.com/media/captures/C/commander-keen-4-secret-of-the-oracle/commander-keen-4_5.zip"
+    },
+    {
+      "id": "prince-of-persia",
+      "title": "Prince of Persia (1989)",
+      "system": "dosbox",
+      "description": "Groundbreaking cinematic platformer game set in ancient Persia.",
+      "download_url": "https://www.myabandonware.com/media/captures/P/prince-of-persia/prince-of-persia_3.zip"
+    }
+  ]
+}
