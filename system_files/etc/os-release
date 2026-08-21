@@ -1,8 +1,8 @@
 NAME="ZConsole OS"
-VERSION="1.0 (Bazzite-based)"
-ID=zconsole
+VERSION="40 (Bazzite-based)"
+ID=fedora
 ID_LIKE="bazzite fedora"
-VERSION_ID=1.0
+VERSION_ID=40
 PRETTY_NAME="ZConsole OS 1.0 (Powered by Bazzite)"
 ANSI_COLOR="0;34"
 HOME_URL="https://github.com/ZystemZ/zconsole-os"
@@ -11,7 +11,7 @@ BUG_REPORT_URL="https://github.com/ZystemZ/zconsole-os/issues"
 PRIVACY_POLICY_URL="https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
 LOGO=zconsole-logo
 VARIANT="Gaming Console"
-VARIANT_ID=gaming
+VARIANT_ID=zconsole
 DEFAULT_HOSTNAME="zconsole"
 
 # Credits
