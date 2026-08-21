@@ -1,10 +1,22 @@
 {
   "store_name": "Z-Store",
-  "version": "1.0",
-  "description": "Curated applications and emulators for ZConsole OS",
+  "version": "2.0",
+  "description": "Curated applications, emulators, and setup tools for ZConsole OS",
   "categories": [
     {
-      "name": "Emulators",
+      "name": "Featured Setup",
+      "apps": [
+        {
+          "id": "org.emudeck.EmuDeck",
+          "name": "EmuDeck",
+          "description": "All-in-one setup tool for emulators, rom directories, and controller configs",
+          "type": "script",
+          "url": "https://www.emudeck.com"
+        }
+      ]
+    },
+    {
+      "name": "Consoles & Handhelds",
       "apps": [
         {
           "id": "org.libretro.RetroArch",
@@ -35,16 +47,40 @@
           "name": "PPSSPP",
           "description": "PlayStation Portable emulator",
           "type": "flatpak"
+        },
+        {
+          "id": "info.cemu.Cemu",
+          "name": "Cemu",
+          "description": "Nintendo Wii U emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "org.ryujinx.Ryujinx",
+          "name": "Ryujinx",
+          "description": "Nintendo Switch emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "org.citra_emu.citra",
+          "name": "Citra",
+          "description": "Nintendo 3DS emulator",
+          "type": "flatpak"
+        },
+        {
+          "id": "org.vita3k.Vita3K",
+          "name": "Vita3K",
+          "description": "PlayStation Vita emulator",
+          "type": "flatpak"
         }
       ]
     },
     {
-      "name": "Utilities",
+      "name": "Utilities & Cloud",
       "apps": [
         {
           "id": "org.rclone.rclone",
           "name": "Rclone",
-          "description": "Cloud storage synchronization utility",
+          "description": "Cloud storage synchronization utility for save backup",
           "type": "flatpak"
         },
         {

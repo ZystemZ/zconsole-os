@@ -31,7 +31,6 @@ chmod +x /usr/bin/zconsole-cloud-sync
 
 ### Boot Animation Setup
 echo "Configuring ZConsole Startup Animation..."
-# Link the animation for Steam Game Mode (if applicable)
 mkdir -p /usr/share/bazzite/overrides
 ln -sf /usr/share/zconsole/boot_animation.mp4 /usr/share/bazzite/overrides/startup_animation.mp4
 
@@ -52,9 +51,10 @@ dnf5 install -y --skip-unavailable \
     tmux \
     vim \
     wget \
-    curl
+    curl \
+    flatpak
 
 # Enable necessary services
 systemctl enable podman.socket
 
-echo "ZConsole OS build completed successfully! Advanced features integrated."
+echo "ZConsole OS build completed successfully! Z-Store 2.0 and EmuDeck integration ready."
