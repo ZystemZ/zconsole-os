@@ -19,17 +19,18 @@ chmod 644 /usr/share/wallpapers/zconsole/wallpaper.png
 chmod 644 /usr/share/icons/zconsole/icons.png
 chmod 644 /usr/share/zconsole/*.png
 chmod 644 /etc/os-release
-chmod 644 /etc/zconsole/zstore.json
-chmod 644 /etc/zconsole/games_catalog.json
+chmod 644 /etc/zconsole/*.json
 
 # Symbolic link for the logo
 ln -sf /usr/share/zconsole/logo.png /usr/share/pixmaps/zconsole-logo.png
 
-### ZGSDK, Cloud Sync and Z-GameStore Scripts
+### ZConsole Executables and Scripts
 echo "Configuring ZConsole Executables..."
 chmod +x /usr/bin/zgsdk
 chmod +x /usr/bin/zconsole-cloud-sync
 chmod +x /usr/bin/zgamestore
+chmod +x /usr/bin/zgamestore-gui
+chmod +x /usr/bin/zconsole-setup
 
 ### Boot Animation Setup
 echo "Configuring ZConsole Startup Animation..."
@@ -47,6 +48,7 @@ dnf5 install -y --skip-unavailable \
     retroarch \
     retroarch-assets \
     python3-pyserial \
+    python3-tkinter \
     rclone \
     htop \
     fastfetch \
@@ -54,9 +56,11 @@ dnf5 install -y --skip-unavailable \
     vim \
     wget \
     curl \
-    flatpak
+    flatpak \
+    zip \
+    unzip
 
 # Enable necessary services
 systemctl enable podman.socket
 
-echo "ZConsole OS build completed successfully! Z-GameStore (Abandonware) integrated."
+echo "ZConsole OS build completed successfully! Z-GameStore GUI and Setup ready."
