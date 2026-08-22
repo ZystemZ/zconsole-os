@@ -20,6 +20,49 @@ chmod 644 /usr/share/icons/zconsole/icons.png
 chmod 644 /usr/share/zconsole/*.png
 chmod 644 /etc/zconsole/*.json
 
+# Plymouth Branding (Boot Splash)
+echo "Configuring Plymouth theme..."
+mkdir -p /usr/share/plymouth/themes/zconsole
+cp /usr/share/zconsole/boot_splash.png /usr/share/plymouth/themes/zconsole/zconsole.png
+cat << 'EOF' > /usr/share/plymouth/themes/zconsole/zconsole.plymouth
+[Plymouth Theme]
+Name=ZConsole OS
+Description=ZConsole OS Boot Splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/zconsole
+ScriptFile=/usr/share/plymouth/themes/zconsole/zconsole.script
+EOF
+
+cat << 'EOF' > /usr/share/plymouth/themes/zconsole/zconsole.script
+logo_image = Image("zconsole.png");
+logo_sprite = Sprite(logo_image);
+logo_sprite.SetX(Window.GetWidth() / 2 - logo_image.GetWidth() / 2);
+logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
+EOF
+
+# Desktop Branding (GSettings Overrides)
+echo "Applying Desktop Environment Overrides..."
+mkdir -p /etc/dconf/db/local.d
+cat << 'EOF' > /etc/dconf/db/local.d/00-zconsole-branding
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/wallpapers/zconsole/wallpaper.png'
+picture-uri-dark='file:///usr/share/wallpapers/zconsole/wallpaper.png'
+picture-options='zoom'
+
+[org/gnome/desktop/interface]
+icon-theme='zconsole'
+EOF
+dconf update || true
+
+# KDE Plasma Overrides
+mkdir -p /etc/skel/.config
+cat << 'EOF' > /etc/skel/.config/plasmarc
+[Wallpaper][org.kde.image][General]
+Image=file:///usr/share/wallpapers/zconsole/wallpaper.png
+EOF
+
 # Edit existing os-release to maintain compatibility with bootc-image-builder
 sed -i 's/^NAME=.*/NAME="ZConsole OS"/' /etc/os-release
 sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="ZConsole OS 1.0 (Powered by Bazzite)"/' /etc/os-release
@@ -27,6 +70,16 @@ echo 'BAZZITE_CREDITS="Based on Bazzite (https://bazzite.gg) and the Universal B
 
 # Symbolic link for the logo
 ln -sf /usr/share/zconsole/logo.png /usr/share/pixmaps/zconsole-logo.png
+
+# Anaconda Installer Branding
+echo "Branding the Anaconda Installer..."
+mkdir -p /usr/share/anaconda/pixmaps
+cp /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/sidebar-logo.png
+cp /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/topbar-logo.png
+# Patch Anaconda configuration if it exists
+if [ -f /etc/anaconda/anaconda.conf ]; then
+    sed -i 's/productname = .*/productname = ZConsole OS/' /etc/anaconda/anaconda.conf
+fi
 
 ### ZGSDK, Cloud Sync and Z-GameStore Scripts
 echo "Configuring ZConsole Executables..."
@@ -62,7 +115,11 @@ dnf5 install -y --skip-unavailable \
     curl \
     flatpak \
     zip \
-    unzip
+    unzip \
+    plymouth-scripts
+
+# Set Plymouth Theme
+plymouth-set-default-theme zconsole -R || true
 
 # Enable necessary services
 systemctl enable podman.socket
