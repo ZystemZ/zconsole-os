@@ -124,12 +124,34 @@ RemainAfterExit=no
 WantedBy=multi-user.target
 EOF
 
+# Ensure a graphical login target exists after installation. Never assume one display manager.
+systemctl set-default graphical.target || true
+for display_manager in sddm gdm; do
+    if [ -f "/usr/lib/systemd/system/${display_manager}.service" ]; then
+        systemctl enable "${display_manager}.service" || true
+        break
+    fi
+done
+
 # Disable Bazzite's startup animation and enable ours
 systemctl disable bazzite-startup-animation.service || true
 systemctl enable zconsole-startup.service
 
 # Local API for Z-Overlay telemetry and controls. It is loopback-only and fail-safe.
 systemctl enable zconsole-local-api.service || true
+
+# Start the Big Picture UI only after a graphical user session exists.
+mkdir -p /etc/xdg/autostart
+cat << 'EOF' > /etc/xdg/autostart/zconsole-gamestore.desktop
+[Desktop Entry]
+Type=Application
+Name=Z-GameStore
+Comment=Interface Big Picture do ZConsole OS
+Exec=/usr/bin/zgamestore-gui
+Terminal=false
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=GNOME;KDE;XFCE;
+EOF
 
 ### PACKAGE INSTALLATION
 echo "Installing Packages..."

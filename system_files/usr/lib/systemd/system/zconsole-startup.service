@@ -1,6 +1,6 @@
 [Unit]
 Description=ZConsole OS Startup Animation
-After=plymouth-quit-wait.service
+After=local-fs.target
 Before=display-manager.service
 
 [Service]
@@ -8,7 +8,7 @@ Type=oneshot
 ExecStart=/usr/bin/zconsole-startup-animation.sh
 StandardOutput=null
 StandardError=null
-TimeoutStartSec=15
+TimeoutStartSec=3
 
 [Install]
 WantedBy=multi-user.target

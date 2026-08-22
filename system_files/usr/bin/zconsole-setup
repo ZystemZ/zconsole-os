@@ -1,44 +1,27 @@
-#!/bin/bash
-"""
-ZConsole OS - First-Boot Setup Tool
-Automates EmuDeck installation and directory configuration.
-"""
+#!/usr/bin/env bash
+# ZConsole OS — configuração inicial do usuário.
+set -u
 
-set -e
+log() { printf '[ZConsole Setup] %s\n' "$*"; }
 
-echo "==============================================="
-echo "   ZCONSOLE OS: CONFIGURAÇÃO INICIAL"
-echo "==============================================="
+log 'Criando estrutura de pastas para ROMs e saves...'
+mkdir -p "$HOME/Emulation"/roms/{dos,pc,snes,megadrive,nes,n64,psx,amiga,arcade,wiiu,switch,3ds,psvita}
+mkdir -p "$HOME/Emulation/saves" "$HOME/Emulation/tools/downloaded_media"
 
-# 1. Create ROM Directories
-echo "[1/4] Criando estrutura de pastas para ROMs..."
-mkdir -p ~/Emulation/roms/{dos,pc,snes,megadrive,nes,n64,psx,amiga,arcade,wiiu,switch,3ds,psvita}
-mkdir -p ~/Emulation/saves
-mkdir -p ~/Emulation/tools/downloaded_media
-
-# 2. Check for EmuDeck
-if ! command -v emudeck &> /dev/null; then
-    echo "[2/4] EmuDeck não detectado. Baixando instalador..."
-    # Download EmuDeck CLI or AppImage if available
-    # For now, we point the user to the tool we included in Z-Store
-    echo "Dica: Use a Z-Store para instalar o EmuDeck completo."
+if command -v emudeck >/dev/null 2>&1; then
+    log 'EmuDeck já está instalado.'
 else
-    echo "[2/4] EmuDeck já instalado."
+    log 'EmuDeck não detectado. Instale-o pela Z-GameStore quando houver rede.'
 fi
 
-# 3. Configure Z-GameStore
-echo "[3/4] Configurando Z-GameStore..."
-chmod +x /usr/bin/zgamestore
-# Initialize catalog if needed
-
-# 4. Finalizing
-echo "[4/4] Finalizando configurações..."
-# Add Z-GameStore to Steam as a non-steam game (if steam is installed)
-if [ -d ~/.steam/steam ]; then
-    echo "Adicionando atalhos ao Steam..."
-    # Script logic to add zgamestore-gui to steam
+if [ -x /usr/bin/zgamestore ]; then
+    log 'Z-GameStore pronta para downloads autorizados.'
+else
+    log 'Aviso: /usr/bin/zgamestore não está disponível nesta imagem.'
 fi
 
-echo "==============================================="
-echo "   ZCONSOLE OS PRONTO PARA JOGAR!"
-echo "==============================================="
+if [ -d "$HOME/.steam/steam" ]; then
+    log 'Steam detectada; o atalho pode ser adicionado pelas configurações da interface.'
+fi
+
+log 'ZConsole OS pronto para configurar.'
