@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""
+ZConsole OS - Z-GameStore Big Picture GUI
+A simple, controller-friendly interface for browsing and downloading games.
+"""
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+import json
+import subprocess
+import threading
+import os
+
+CATALOG_PATH = "/etc/zconsole/games_catalog.json"
+
+class ZGameStoreGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Z-GameStore - Big Picture Mode")
+        self.root.attributes('-fullscreen', True)
+        self.root.configure(bg='#1a1a1a')
+
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure("TLabel", background="#1a1a1a", foreground="#00d2ff", font=("Helvetica", 14))
+        self.style.configure("TButton", font=("Helvetica", 12), padding=10)
+
+        self.catalog = self.load_catalog()
+        self.setup_ui()
+
+    def load_catalog(self):
+        try:
+            with open(CATALOG_PATH, "r") as f:
+                return json.load(f)
+        except:
+            return {"games": []}
+
+    def setup_ui(self):
+        # Header
+        header = tk.Label(self.root, text="Z-GAMESTORE", font=("Helvetica", 32, "bold"), bg="#1a1a1a", fg="#00d2ff")
+        header.pack(pady=20)
+
+        # Main Content Area
+        self.main_frame = tk.Frame(self.root, bg="#1a1a1a")
+        self.main_frame.pack(expand=True, fill="both", padx=50)
+
+        # Game List (Scrollable)
+        self.canvas = tk.Canvas(self.main_frame, bg="#1a1a1a", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#1a1a1a")
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.populate_games()
+
+        # Footer / Instructions
+        footer = tk.Label(self.root, text="[SETAS] Navegar  |  [ENTER] Baixar Jogo  |  [ESC] Sair", font=("Helvetica", 12), bg="#1a1a1a", fg="#888")
+        footer.pack(pady=10)
+
+        self.root.bind("<Escape>", lambda e: self.root.destroy())
+
+    def populate_games(self):
+        for game in self.catalog["games"]:
+            frame = tk.Frame(self.scrollable_frame, bg="#2a2a2a", pady=10, padx=20, highlightbackground="#00d2ff", highlightthickness=1)
+            frame.pack(fill="x", pady=5)
+
+            title = tk.Label(frame, text=f"{game['title']} ({game['platform'].upper()})", font=("Helvetica", 16, "bold"), bg="#2a2a2a", fg="white")
+            title.pack(anchor="w")
+
+            desc = tk.Label(frame, text=game['description'], font=("Helvetica", 10), bg="#2a2a2a", fg="#ccc", wraplength=800, justify="left")
+            desc.pack(anchor="w")
+
+            btn = tk.Button(frame, text="BAIXAR", command=lambda g=game: self.start_download(g), bg="#00d2ff", fg="black", font=("Helvetica", 10, "bold"))
+            btn.pack(side="right", pady=5)
+
+    def start_download(self, game):
+        if messagebox.askyesno("Confirmar", f"Deseja baixar e instalar {game['title']}?"):
+            threading.Thread(target=self.run_download, args=(game,), daemon=True).start()
+
+    def run_download(self, game):
+        try:
+            process = subprocess.Popen(["zgamestore", "get", game['id']], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout, stderr = process.communicate()
+            if process.returncode == 0:
+                messagebox.showinfo("Sucesso", f"{game['title']} foi instalado com sucesso!")
+            else:
+                messagebox.showerror("Erro", f"Falha ao instalar {game['title']}:\n{stderr}")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro inesperado: {e}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ZGameStoreGUI(root)
+    root.mainloop()

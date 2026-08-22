@@ -1,0 +1,22 @@
+[Unit]
+Description=ZConsole OS Local API (telemetry and controls)
+After=network.target graphical.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/zconsole/zconsole_local_api.py
+Restart=on-failure
+RestartSec=3s
+TimeoutStartSec=10s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run /tmp
+
+[Install]
+WantedBy=graphical.target
+WantedBy=multi-user.target
+
+# The API binds to 127.0.0.1 only; it is not a LAN service.

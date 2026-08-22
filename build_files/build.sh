@@ -12,40 +12,37 @@ if [ -d /etc/yum.repos.d/ ]; then
     sed -i 's/gpgcheck=1/gpgcheck=0/g' /etc/yum.repos.d/*.repo || true
 fi
 
-### DEEP REBRANDING (OS-RELEASE)
-echo "Applying Deep Branding to os-release..."
+### EXTERMINATE BAZZITE BRANDING (Aggressive Search & Replace)
+echo "Exterminating Bazzite branding from system files..."
+# Patch os-release
 for f in /etc/os-release /usr/lib/os-release; do
     if [ -f "$f" ]; then
+        sed -i 's/Bazzite/ZConsole OS/g' "$f"
+        sed -i 's/bazzite/zconsole/g' "$f"
         sed -i 's/^NAME=.*/NAME="ZConsole OS"/' "$f"
-        sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="ZConsole OS 1.0 (Powered by Bazzite)"/' "$f"
+        sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="ZConsole OS 1.0"/' "$f"
         sed -i 's/^ID=.*/ID=zconsole/' "$f"
-        sed -i 's/^ID_LIKE=.*/ID_LIKE="bazzite fedora"/' "$f"
-        sed -i 's/^VARIANT=.*/VARIANT="Gaming Console"/' "$f"
-        sed -i 's/^HOME_URL=.*/HOME_URL="https:\/\/github.com\/ZystemZ\/zconsole-os"/' "$f"
     fi
 done
 
-### GRUB REBRANDING
-echo "Branding the GRUB Menu..."
+# Patch GRUB Distributor
 if [ -f /etc/default/grub ]; then
-    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="ZConsole OS"/' /etc/default/grub
+    sed -i 's/GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="ZConsole OS"/' /etc/default/grub
 fi
-# Remove Bazzite custom grub configs if they exist to avoid "Booting Bazzite"
-rm -f /etc/grub.d/99-bazzite.cfg || true
 
-### PLYMOUTH BRANDING (Aggressive)
-echo "Forcing ZConsole Plymouth Theme..."
-# Replace default bazzite theme files if they exist
+# Patch GRUB templates to remove "Booting Bazzite"
+if [ -d /etc/grub.d ]; then
+    grep -lR "Bazzite" /etc/grub.d/ | xargs sed -i 's/Bazzite/ZConsole OS/g' || true
+fi
+
+### PLYMOUTH BRANDING (Nuclear Option)
+echo "Nuking Bazzite Plymouth and forcing ZConsole..."
 BAZZITE_THEME_DIR="/usr/share/plymouth/themes/bazzite"
-if [ -d "$BAZZITE_THEME_DIR" ]; then
-    cp -f /usr/share/zconsole/boot_splash.png "$BAZZITE_THEME_DIR/bazzite.png" || true
-    cp -f /usr/share/zconsole/boot_splash.png "$BAZZITE_THEME_DIR/watermark.png" || true
-fi
+ZCONSOLE_THEME_DIR="/usr/share/plymouth/themes/zconsole"
 
-# Also set our own theme
-mkdir -p /usr/share/plymouth/themes/zconsole
-cp /usr/share/zconsole/boot_splash.png /usr/share/plymouth/themes/zconsole/zconsole.png
-cat << 'EOF' > /usr/share/plymouth/themes/zconsole/zconsole.plymouth
+mkdir -p "$ZCONSOLE_THEME_DIR"
+cp /usr/share/zconsole/boot_splash.png "$ZCONSOLE_THEME_DIR/zconsole.png"
+cat << 'EOF' > "$ZCONSOLE_THEME_DIR/zconsole.plymouth"
 [Plymouth Theme]
 Name=ZConsole OS
 Description=ZConsole OS Boot Splash
@@ -56,12 +53,17 @@ ImageDir=/usr/share/plymouth/themes/zconsole
 ScriptFile=/usr/share/plymouth/themes/zconsole/zconsole.script
 EOF
 
-cat << 'EOF' > /usr/share/plymouth/themes/zconsole/zconsole.script
+cat << 'EOF' > "$ZCONSOLE_THEME_DIR/zconsole.script"
 logo_image = Image("zconsole.png");
 logo_sprite = Sprite(logo_image);
 logo_sprite.SetX(Window.GetWidth() / 2 - logo_image.GetWidth() / 2);
 logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
 EOF
+
+# If bazzite theme exists, replace its assets too as a backup
+if [ -d "$BAZZITE_THEME_DIR" ]; then
+    find "$BAZZITE_THEME_DIR" -name "*.png" -exec cp -f "$ZCONSOLE_THEME_DIR/zconsole.png" {} \; || true
+fi
 
 ### ANACONDA INSTALLER BRANDING
 echo "Branding the Anaconda Installer..."
@@ -94,22 +96,44 @@ EOF
 
 ### EXECUTABLES AND SERVICES
 echo "Configuring ZConsole Executables and Services..."
-chmod +x /usr/bin/zgsdk /usr/bin/zconsole-cloud-sync /usr/bin/zgamestore /usr/bin/zgamestore-gui /usr/bin/zconsole-setup /usr/bin/zconsole-startup-animation.sh
+chmod +x /usr/bin/zgsdk /usr/bin/zconsole-cloud-sync /usr/bin/zgamestore /usr/bin/zgamestore-gui /usr/bin/zgamestore-gui-legacy /usr/bin/zconsole-setup /usr/bin/zconsole-startup-animation.sh /usr/lib/zconsole/zconsole_local_api.py
+
+# Ensure the startup service is robust
+cat << 'EOF' > /usr/lib/systemd/system/zconsole-startup.service
+[Unit]
+Description=ZConsole OS Startup Animation
+After=plymouth-quit-wait.service
+Before=display-manager.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/zconsole-startup-animation.sh
+StandardOutput=null
+StandardError=null
+TimeoutStartSec=15
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 # Disable Bazzite's startup animation and enable ours
 systemctl disable bazzite-startup-animation.service || true
 systemctl enable zconsole-startup.service
 
+# Local API for Z-Overlay telemetry and controls. It is loopback-only and fail-safe.
+systemctl enable zconsole-local-api.service || true
+
 ### PACKAGE INSTALLATION
 echo "Installing Packages..."
-# Bazzite uses dnf or rpm-ostree depending on context, we try dnf first
 dnf install -y --skip-unavailable \
     retroarch retroarch-assets \
     python3-pyserial python3-tkinter \
     rclone htop fastfetch tmux vim wget curl flatpak zip unzip \
-    plymouth-scripts mpv || true
+    plymouth-scripts mpv python3-fastapi python3-uvicorn brightnessctl wireplumber power-profiles-daemon || true
 
 # Set Plymouth Theme
-plymouth-set-default-theme zconsole -R || true
+plymouth-set-default-theme zconsole || true
 
-echo "ZConsole OS Deep Branding Completed!"
+echo "ZConsole OS Identity Patch Completed!"

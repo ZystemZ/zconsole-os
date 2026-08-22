@@ -1,103 +1,58 @@
-#!/usr/bin/env python3
-"""
-ZConsole OS - Z-GameStore Big Picture GUI
-A simple, controller-friendly interface for browsing and downloading games.
-"""
+#!/bin/bash
+# ZConsole OS - React Big Picture launcher (Readiness-Gated Kiosk Mode)
+# Waits for local API health check before launching Chromium to prevent blank screen race conditions.
 
-import tkinter as tk
-from tkinter import ttk, messagebox
-import json
-import subprocess
-import threading
-import os
+set -u
+URL="http://127.0.0.1:48521"
+API_STATUS_URL="$URL/api/status"
 
-CATALOG_PATH = "/etc/zconsole/games_catalog.json"
+# Start local telemetry API in background
+systemctl start --no-block zconsole-local-api.service >/dev/null 2>&1 || python3 /usr/lib/zconsole/zconsole_local_api.py >/dev/null 2>&1 &
 
-class ZGameStoreGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Z-GameStore - Big Picture Mode")
-        self.root.attributes('-fullscreen', True)
-        self.root.configure(bg='#1a1a1a')
+# Wait up to 10 seconds for the local web server to respond successfully
+echo "Waiting for ZConsole local service readiness..."
+READY=0
+for i in {1..20}; do
+    if command -v curl >/dev/null 2>&1; then
+        # Check API status, root index, and compiled assets share
+        if curl -s -f "$API_STATUS_URL" >/dev/null 2>&1 && curl -s -f "$URL/" >/dev/null 2>&1; then
+            # Extract a compiled asset path from index.html and verify HTTP 200
+            INDEX_HTML=$(curl -s "$URL/")
+            ASSET_PATH=$(echo "$INDEX_HTML" | grep -oE 'assets/[^"]+\.js' | head -n 1)
+            if [ -n "$ASSET_PATH" ] && curl -s -f "$URL/$ASSET_PATH" >/dev/null 2>&1; then
+                READY=1
+                break
+            fi
+        fi
+    elif python3 -c "import urllib.request; r1=urllib.request.urlopen('$API_STATUS_URL'); r2=urllib.request.urlopen('$URL/'); assert b'assets/' in r2.read()" 2>/dev/null; then
+        READY=1
+        break
+    fi
+    sleep 0.5
+done
 
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        self.style.configure("TLabel", background="#1a1a1a", foreground="#00d2ff", font=("Helvetica", 14))
-        self.style.configure("TButton", font=("Helvetica", 12), padding=10)
+if [ "$READY" -ne 1 ]; then
+    echo "Local API readiness timeout, falling back directly to Tkinter UI..." >&2
+    exec /usr/bin/python3 /usr/bin/zgamestore-gui-legacy
+fi
 
-        self.catalog = self.load_catalog()
-        self.setup_ui()
+# Launch Chromium with anti-black-screen flags once the service is confirmed online
+for browser in chromium chromium-browser google-chrome; do
+    if command -v "$browser" >/dev/null 2>&1; then
+        echo "Launching $browser in kiosk mode against $URL..."
+        exec "$browser" \
+            --kiosk \
+            --app="$URL" \
+            --no-first-run \
+            --no-default-browser-check \
+            --disable-session-crashed-bubble \
+            --disable-pinch \
+            --overscroll-history-navigation=0 \
+            --disable-features=TranslateUI \
+            --disable-gpu-sandbox \
+            --start-maximized
+    fi
+done
 
-    def load_catalog(self):
-        try:
-            with open(CATALOG_PATH, "r") as f:
-                return json.load(f)
-        except:
-            return {"games": []}
-
-    def setup_ui(self):
-        # Header
-        header = tk.Label(self.root, text="Z-GAMESTORE", font=("Helvetica", 32, "bold"), bg="#1a1a1a", fg="#00d2ff")
-        header.pack(pady=20)
-
-        # Main Content Area
-        self.main_frame = tk.Frame(self.root, bg="#1a1a1a")
-        self.main_frame.pack(expand=True, fill="both", padx=50)
-
-        # Game List (Scrollable)
-        self.canvas = tk.Canvas(self.main_frame, bg="#1a1a1a", highlightthickness=0)
-        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas, bg="#1a1a1a")
-
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
-
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        self.populate_games()
-
-        # Footer / Instructions
-        footer = tk.Label(self.root, text="[SETAS] Navegar  |  [ENTER] Baixar Jogo  |  [ESC] Sair", font=("Helvetica", 12), bg="#1a1a1a", fg="#888")
-        footer.pack(pady=10)
-
-        self.root.bind("<Escape>", lambda e: self.root.destroy())
-
-    def populate_games(self):
-        for game in self.catalog["games"]:
-            frame = tk.Frame(self.scrollable_frame, bg="#2a2a2a", pady=10, padx=20, highlightbackground="#00d2ff", highlightthickness=1)
-            frame.pack(fill="x", pady=5)
-
-            title = tk.Label(frame, text=f"{game['title']} ({game['platform'].upper()})", font=("Helvetica", 16, "bold"), bg="#2a2a2a", fg="white")
-            title.pack(anchor="w")
-
-            desc = tk.Label(frame, text=game['description'], font=("Helvetica", 10), bg="#2a2a2a", fg="#ccc", wraplength=800, justify="left")
-            desc.pack(anchor="w")
-
-            btn = tk.Button(frame, text="BAIXAR", command=lambda g=game: self.start_download(g), bg="#00d2ff", fg="black", font=("Helvetica", 10, "bold"))
-            btn.pack(side="right", pady=5)
-
-    def start_download(self, game):
-        if messagebox.askyesno("Confirmar", f"Deseja baixar e instalar {game['title']}?"):
-            threading.Thread(target=self.run_download, args=(game,), daemon=True).start()
-
-    def run_download(self, game):
-        try:
-            process = subprocess.Popen(["zgamestore", "get", game['id']], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            stdout, stderr = process.communicate()
-            if process.returncode == 0:
-                messagebox.showinfo("Sucesso", f"{game['title']} foi instalado com sucesso!")
-            else:
-                messagebox.showerror("Erro", f"Falha ao instalar {game['title']}:\n{stderr}")
-        except Exception as e:
-            messagebox.showerror("Erro", f"Ocorreu um erro inesperado: {e}")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ZGameStoreGUI(root)
-    root.mainloop()
+# Fallback to legacy Python Tkinter Big Picture interface
+exec /usr/bin/python3 /usr/bin/zgamestore-gui-legacy

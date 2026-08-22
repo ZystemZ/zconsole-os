@@ -316,3 +316,21 @@ These are images derived from this template (or similar enough to this template)
 - [Homer](https://github.com/bketelsen/homer/)
 - [Amy OS](https://github.com/astrovm/amyos)
 - [VeneOS](https://github.com/Venefilyn/veneos)
+
+## ZConsole OS V2: Big Picture e ponte local
+
+A imagem do ZConsole incorpora a build estática do **Z-GameStore V2**, uma interface React/Vite em português brasileiro servida pela API local em `127.0.0.1:48521`. O launcher `/usr/bin/zgamestore-gui` inicia o serviço de forma não bloqueante e abre o Chromium em modo kiosk; em imagens mínimas ou máquinas virtuais sem Chromium, o launcher preserva o fallback `/usr/bin/zgamestore-gui-legacy`.
+
+A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
+
+| Endpoint | Função |
+|---|---|
+| `GET /api/status` | CPU, RAM, bateria, volume, brilho real via `brightnessctl`/sysfs, perfil de energia e OSCR |
+| `POST /api/brightness` | Aplica um valor de 0 a 100 usando `brightnessctl` |
+| `POST /api/volume` | Solicita volume de 0 a 100 usando `wpctl` |
+| `POST /api/power-profile` | Define o perfil lógico Silencioso, Equilibrado ou Desempenho |
+| `POST /api/oscr/{action}` | Consulta/prepara ações do leitor sem tocar em dados do cartucho |
+
+A prévia automática dos cards só é ativada depois de dois segundos de foco e somente quando há uma fonte oficial configurada. O card de DOOM usa um embed oficial verificado em modo privacy-enhanced; os demais cards informam `Sem prévia oficial` até que uma fonte compatível e licenciada seja cadastrada. Isso evita embutir clipes genéricos ou presumir URLs diretas de terceiros.
+
+Para testar o serviço na imagem instalada, use `systemctl status zconsole-local-api.service` e depois `curl http://127.0.0.1:48521/api/status`. Para gerar novamente os artefatos, compile o projeto `zconsole-store-v2`, copie `dist/public` para `system_files/usr/share/zconsole/gamestore` e execute o workflow de build da imagem antes do workflow de ISO.
