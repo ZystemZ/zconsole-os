@@ -21,7 +21,13 @@ for f in /etc/os-release /usr/lib/os-release; do
         sed -i 's/bazzite/zconsole/g' "$f"
         sed -i 's/^NAME=.*/NAME="ZConsole OS"/' "$f"
         sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="ZConsole OS 1.0"/' "$f"
-        sed -i 's/^ID=.*/ID=zconsole/' "$f"
+        # Keep ZConsole branding while retaining Fedora's supported distro definition.
+        sed -i 's/^ID=.*/ID=fedora/' "$f"
+        if grep -q '^ID_LIKE=' "$f"; then
+            sed -i 's/^ID_LIKE=.*/ID_LIKE=fedora/' "$f"
+        else
+            printf '%s\n' 'ID_LIKE=fedora' >> "$f"
+        fi
     fi
 done
 
