@@ -114,10 +114,12 @@ jobs:
             - Suporte a leitor de cartuchos (OSCR) e EmuDeck
             
             ### Como instalar:
-            1. Baixe o arquivo `.iso` abaixo.
-            2. Use o Rufus (modo DD) para gravar em um pendrive de 16GB+.
-            3. Divirta-se!
+            1. Baixe o artefato `artifact-anaconda-iso` na execução do GitHub Actions.
+            2. Extraia o arquivo `.iso` do ZIP baixado.
+            3. Use o Rufus (modo DD) para gravar em um pendrive de 16GB+.
+            4. O QCOW2 fica no artefato `artifact-qcow2` para uso em máquinas virtuais.
+
+            Os arquivos de disco não são anexados diretamente ao Release porque o GitHub limita assets individuais a 2 GiB. O manifesto pequeno abaixo permanece no Release para referência.
           files: |
-            ${{ steps.build.outputs.output-directory }}/**/*.iso
-            ${{ steps.build.outputs.output-directory }}/**/*.qcow2
             ${{ steps.build.outputs.output-directory }}/**/*.json
+          fail_on_unmatched_files: true
