@@ -1,58 +1,68 @@
 #!/bin/bash
-# ZConsole OS - React Big Picture launcher (Readiness-Gated Kiosk Mode)
-# Waits for local API health check before launching Chromium to prevent blank screen race conditions.
-
+# ZConsole OS - launcher Big Picture com readiness e fallback seguro.
 set -u
-URL="http://127.0.0.1:48521"
+
+URL="${ZCONSOLE_STORE_URL:-http://127.0.0.1:48521}"
 API_STATUS_URL="$URL/api/status"
+LEGACY="/usr/bin/zgamestore-gui-legacy"
+LOG="${XDG_CACHE_HOME:-/tmp}/zconsole-gamestore.log"
 
-# Start local telemetry API in background
-systemctl start --no-block zconsole-local-api.service >/dev/null 2>&1 || python3 /usr/lib/zconsole/zconsole_local_api.py >/dev/null 2>&1 &
+fallback() {
+    echo "[Z-GameStore] Usando interface legada: $*" >>"$LOG"
+    exec /usr/bin/python3 "$LEGACY"
+}
 
-# Wait up to 10 seconds for the local web server to respond successfully
-echo "Waiting for ZConsole local service readiness..."
+# Sem sessão gráfica, não tentar abrir Chromium e evitar uma tela preta.
+if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    fallback "DISPLAY/WAYLAND_DISPLAY ausente"
+fi
+
+systemctl start --no-block zconsole-local-api.service >/dev/null 2>&1 || \
+    (python3 /usr/lib/zconsole/zconsole_local_api.py >>"$LOG" 2>&1 &)
+
 READY=0
-for i in {1..20}; do
+for _ in {1..30}; do
     if command -v curl >/dev/null 2>&1; then
-        # Check API status, root index, and compiled assets share
-        if curl -s -f "$API_STATUS_URL" >/dev/null 2>&1 && curl -s -f "$URL/" >/dev/null 2>&1; then
-            # Extract a compiled asset path from index.html and verify HTTP 200
-            INDEX_HTML=$(curl -s "$URL/")
-            ASSET_PATH=$(echo "$INDEX_HTML" | grep -oE 'assets/[^"]+\.js' | head -n 1)
-            if [ -n "$ASSET_PATH" ] && curl -s -f "$URL/$ASSET_PATH" >/dev/null 2>&1; then
-                READY=1
-                break
-            fi
+        index_html="$(curl --connect-timeout 1 --max-time 2 -fsS "$URL/" 2>/dev/null || true)"
+        asset_path="$(printf '%s' "$index_html" | grep -oE 'assets/[^" ]+\.js' | head -n 1 || true)"
+        if curl --connect-timeout 1 --max-time 2 -fsS "$API_STATUS_URL" >/dev/null 2>&1 \
+            && [ -n "$asset_path" ] \
+            && curl --connect-timeout 1 --max-time 2 -fsS "$URL/$asset_path" >/dev/null 2>&1; then
+            READY=1
+            break
         fi
-    elif python3 -c "import urllib.request; r1=urllib.request.urlopen('$API_STATUS_URL'); r2=urllib.request.urlopen('$URL/'); assert b'assets/' in r2.read()" 2>/dev/null; then
-        READY=1
-        break
     fi
     sleep 0.5
 done
 
-if [ "$READY" -ne 1 ]; then
-    echo "Local API readiness timeout, falling back directly to Tkinter UI..." >&2
-    exec /usr/bin/python3 /usr/bin/zgamestore-gui-legacy
-fi
+[ "$READY" -eq 1 ] || fallback "serviço local não ficou pronto"
 
-# Launch Chromium with anti-black-screen flags once the service is confirmed online
 for browser in chromium chromium-browser google-chrome; do
     if command -v "$browser" >/dev/null 2>&1; then
-        echo "Launching $browser in kiosk mode against $URL..."
-        exec "$browser" \
+        profile_dir="${XDG_RUNTIME_DIR:-/tmp}/zconsole-chromium-${UID:-0}"
+        mkdir -p "$profile_dir"
+        echo "[Z-GameStore] Abrindo $browser em $URL" >>"$LOG"
+        "$browser" \
             --kiosk \
             --app="$URL" \
+            --user-data-dir="$profile_dir" \
             --no-first-run \
             --no-default-browser-check \
+            --noerrdialogs \
             --disable-session-crashed-bubble \
             --disable-pinch \
             --overscroll-history-navigation=0 \
             --disable-features=TranslateUI \
-            --disable-gpu-sandbox \
-            --start-maximized
+            --disable-gpu \
+            --disable-gpu-compositing \
+            --disable-dev-shm-usage \
+            --start-maximized >>"$LOG" 2>&1 &
+        browser_pid=$!
+        wait "$browser_pid"
+        exit_code=$?
+        echo "[Z-GameStore] Chromium encerrou com código $exit_code; fallback Tkinter." >>"$LOG"
+        fallback "Chromium encerrou"
     fi
 done
 
-# Fallback to legacy Python Tkinter Big Picture interface
-exec /usr/bin/python3 /usr/bin/zgamestore-gui-legacy
+fallback "navegador Chromium não encontrado"

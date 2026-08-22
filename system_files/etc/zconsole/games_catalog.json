@@ -1,5 +1,5 @@
 {
-  "catalog_version": "4.0",
+  "catalog_version": "2.1-authorized-zips",
   "games": [
     {
       "id": "dos-doom",
@@ -2522,20 +2522,20 @@
       "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/megadrive/Puyo_Puyo.png"
     },
     {
-      "id": "gba-pok\u00e9mon-ruby/sapphir",
-      "title": "Pok\u00e9mon Ruby/Sapphire/Emerald",
+      "id": "gba-pokémon-ruby/sapphir",
+      "title": "Pokémon Ruby/Sapphire/Emerald",
       "platform": "gba",
-      "description": "Classic Pok\u00e9mon Ruby/Sapphire/Emerald for the GBA. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon Ruby/Sapphire/Emerald gba rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gba/Pok\u00e9mon_Ruby/Sapphire/Emerald.png"
+      "description": "Classic Pokémon Ruby/Sapphire/Emerald for the GBA. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon Ruby/Sapphire/Emerald gba rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gba/Pokémon_Ruby/Sapphire/Emerald.png"
     },
     {
-      "id": "gba-pok\u00e9mon-firered/leaf",
-      "title": "Pok\u00e9mon FireRed/LeafGreen",
+      "id": "gba-pokémon-firered/leaf",
+      "title": "Pokémon FireRed/LeafGreen",
       "platform": "gba",
-      "description": "Classic Pok\u00e9mon FireRed/LeafGreen for the GBA. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon FireRed/LeafGreen gba rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gba/Pok\u00e9mon_FireRed/LeafGreen.png"
+      "description": "Classic Pokémon FireRed/LeafGreen for the GBA. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon FireRed/LeafGreen gba rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gba/Pokémon_FireRed/LeafGreen.png"
     },
     {
       "id": "gba-the-legend-of-zelda:",
@@ -2970,20 +2970,20 @@
       "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/n64/Mario_Party_1-3.png"
     },
     {
-      "id": "n64-pok\u00e9mon-stadium-1-&-",
-      "title": "Pok\u00e9mon Stadium 1 & 2",
+      "id": "n64-pokémon-stadium-1-&-",
+      "title": "Pokémon Stadium 1 & 2",
       "platform": "n64",
-      "description": "Classic Pok\u00e9mon Stadium 1 & 2 for the N64. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon Stadium 1 & 2 n64 rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/n64/Pok\u00e9mon_Stadium_1_&_2.png"
+      "description": "Classic Pokémon Stadium 1 & 2 for the N64. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon Stadium 1 & 2 n64 rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/n64/Pokémon_Stadium_1_&_2.png"
     },
     {
-      "id": "n64-pok\u00e9mon-snap",
-      "title": "Pok\u00e9mon Snap",
+      "id": "n64-pokémon-snap",
+      "title": "Pokémon Snap",
       "platform": "n64",
-      "description": "Classic Pok\u00e9mon Snap for the N64. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon Snap n64 rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/n64/Pok\u00e9mon_Snap.png"
+      "description": "Classic Pokémon Snap for the N64. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon Snap n64 rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/n64/Pokémon_Snap.png"
     },
     {
       "id": "n64-kirby-64:-the-crysta",
@@ -6378,20 +6378,20 @@
       "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gb/Super_Mario_Land_1-3.png"
     },
     {
-      "id": "gb-pok\u00e9mon-red/blue/yel",
-      "title": "Pok\u00e9mon Red/Blue/Yellow",
+      "id": "gb-pokémon-red/blue/yel",
+      "title": "Pokémon Red/Blue/Yellow",
       "platform": "gb",
-      "description": "Classic Pok\u00e9mon Red/Blue/Yellow for the GB. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon Red/Blue/Yellow gb rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gb/Pok\u00e9mon_Red/Blue/Yellow.png"
+      "description": "Classic Pokémon Red/Blue/Yellow for the GB. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon Red/Blue/Yellow gb rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gb/Pokémon_Red/Blue/Yellow.png"
     },
     {
-      "id": "gb-pok\u00e9mon-gold/silver/",
-      "title": "Pok\u00e9mon Gold/Silver/Crystal",
+      "id": "gb-pokémon-gold/silver/",
+      "title": "Pokémon Gold/Silver/Crystal",
       "platform": "gb",
-      "description": "Classic Pok\u00e9mon Gold/Silver/Crystal for the GB. One of the most famous titles in gaming history.",
-      "download_url": "https://archive.org/search.php?query=Pok\u00e9mon Gold/Silver/Crystal gb rom",
-      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gb/Pok\u00e9mon_Gold/Silver/Crystal.png"
+      "description": "Classic Pokémon Gold/Silver/Crystal for the GB. One of the most famous titles in gaming history.",
+      "download_url": "https://archive.org/search.php?query=Pokémon Gold/Silver/Crystal gb rom",
+      "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/gb/Pokémon_Gold/Silver/Crystal.png"
     },
     {
       "id": "gb-the-legend-of-zelda:",
@@ -8008,6 +8008,41 @@
       "description": "Classic Green Hell for the WINDOWS. One of the most famous titles in gaming history.",
       "download_url": "https://www.myabandonware.com/search/q/green-hell",
       "image_url": "https://raw.githubusercontent.com/ZystemZ/zconsole-assets/main/covers/windows/Green_Hell.png"
+    },
+    {
+      "id": "free-freedoom-0130",
+      "title": "Freedoom 0.13.0",
+      "platform": "dos",
+      "description": "Jogo e dados livres compatíveis com engines do Doom; distribuição oficial em ZIP.",
+      "download_url": "https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip",
+      "source_url": "https://freedoom.github.io/download.html",
+      "download_kind": "direct_zip",
+      "license": "Open license (ver COPYING.adoc)",
+      "license_url": "https://github.com/freedoom/freedoom/blob/master/COPYING.adoc",
+      "requires_engine": true
+    },
+    {
+      "id": "free-freedm-0130",
+      "title": "FreeDM 0.13.0",
+      "platform": "dos",
+      "description": "Jogo livre de deathmatch do projeto Freedoom; distribuição oficial em ZIP.",
+      "download_url": "https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedm-0.13.0.zip",
+      "source_url": "https://freedoom.github.io/download.html",
+      "download_kind": "direct_zip",
+      "license": "Open license (ver COPYING.adoc)",
+      "license_url": "https://github.com/freedoom/freedoom/blob/master/COPYING.adoc",
+      "requires_engine": true
+    },
+    {
+      "id": "free-xonotic-086",
+      "title": "Xonotic 0.8.6",
+      "platform": "windows",
+      "description": "Arena shooter livre e multiplataforma; pacote ZIP oficial sem instalação.",
+      "download_url": "https://dl.xonotic.org/xonotic-0.8.6.zip",
+      "source_url": "https://xonotic.org/download/",
+      "download_kind": "direct_zip",
+      "license": "GPLv3+",
+      "license_url": "https://xonotic.org/"
     }
   ]
 }

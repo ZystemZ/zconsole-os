@@ -10,6 +10,7 @@ import json
 import subprocess
 import threading
 import os
+from queue import Queue, Empty
 
 CATALOG_PATH = "/etc/zconsole/games_catalog.json"
 
@@ -26,13 +27,16 @@ class ZGameStoreGUI:
         self.style.configure("TButton", font=("Helvetica", 12), padding=10)
 
         self.catalog = self.load_catalog()
+        self.notifications = Queue()
         self.setup_ui()
+        self.root.after(200, self.process_notifications)
 
     def load_catalog(self):
         try:
-            with open(CATALOG_PATH, "r") as f:
-                return json.load(f)
-        except:
+            with open(CATALOG_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) and isinstance(data.get("games"), list) else {"games": []}
+        except (OSError, ValueError, TypeError):
             return {"games": []}
 
     def setup_ui(self):
@@ -88,14 +92,26 @@ class ZGameStoreGUI:
 
     def run_download(self, game):
         try:
-            process = subprocess.Popen(["zgamestore", "get", game['id']], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            process = subprocess.Popen(["zgamestore", "get", game["id"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             stdout, stderr = process.communicate()
             if process.returncode == 0:
-                messagebox.showinfo("Sucesso", f"{game['title']} foi instalado com sucesso!")
+                self.notifications.put(("info", "Fonte aberta", f"A página de download de {game['title']} foi aberta no navegador."))
             else:
-                messagebox.showerror("Erro", f"Falha ao instalar {game['title']}:\n{stderr}")
-        except Exception as e:
-            messagebox.showerror("Erro", f"Ocorreu um erro inesperado: {e}")
+                self.notifications.put(("error", "Erro", stderr.strip() or f"Falha ao abrir a fonte de {game['title']}"))
+        except OSError as error:
+            self.notifications.put(("error", "Erro", f"Não foi possível iniciar o instalador: {error}"))
+
+    def process_notifications(self):
+        try:
+            while True:
+                kind, title, message = self.notifications.get_nowait()
+                if kind == "info":
+                    messagebox.showinfo(title, message)
+                else:
+                    messagebox.showerror(title, message)
+        except Empty:
+            pass
+        self.root.after(200, self.process_notifications)
 
 if __name__ == "__main__":
     root = tk.Tk()

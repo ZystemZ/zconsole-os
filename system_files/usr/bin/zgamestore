@@ -10,14 +10,15 @@ import sys
 import json
 import zipfile
 import shutil
+import subprocess
 import urllib.request
 import argparse
 from pathlib import Path
 
 # Configuration
-CATALOG_PATH = "/etc/zconsole/games_catalog.json"
-BASE_ROM_DIR = Path(os.path.expanduser("~/Emulation/roms"))
-MEDIA_DIR = Path(os.path.expanduser("~/Emulation/tools/downloaded_media"))
+CATALOG_PATH = os.environ.get("ZCONSOLE_CATALOG_PATH", "/etc/zconsole/games_catalog.json")
+BASE_ROM_DIR = Path(os.path.expanduser(os.environ.get("ZCONSOLE_ROM_DIR", "~/Emulation/roms")))
+MEDIA_DIR = Path(os.path.expanduser(os.environ.get("ZCONSOLE_MEDIA_DIR", "~/Emulation/tools/downloaded_media")))
 
 # Mapping platforms to EmuDeck folders
 PLATFORM_MAP = {
@@ -54,13 +55,39 @@ def list_games(platform=None):
         print(f"Desc: {game['description'][:80]}...")
         print("-" * 30)
 
+def open_source(url):
+    """Open a catalog source without pretending that a web page is a ROM archive."""
+    for opener in (("xdg-open", url), ("gio", "open", url)):
+        if shutil.which(opener[0]):
+            try:
+                subprocess.Popen(opener, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except OSError:
+                continue
+    return False
+
+
+def download_archive(url, destination):
+    request = urllib.request.Request(url, headers={"User-Agent": "ZConsole-GameStore/2.0"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        signature = response.read(4)
+        if not signature.startswith(b"PK"):
+            raise ValueError("a fonte retornou uma página, não um arquivo ZIP baixável")
+        with destination.open("wb") as output:
+            output.write(signature)
+            shutil.copyfileobj(response, output)
+    if not zipfile.is_zipfile(destination):
+        destination.unlink(missing_ok=True)
+        raise ValueError("o arquivo baixado não é um ZIP válido")
+
+
 def install_game(game_id):
     catalog = load_catalog()
     game = next((g for g in catalog["games"] if g["id"] == game_id), None)
     
     if not game:
         print(f"[Erro] Jogo '{game_id}' não encontrado no catálogo.")
-        return
+        return 1
 
     # 1. Determine Paths
     platform_folder = PLATFORM_MAP.get(game["platform"].lower(), game["platform"].lower())
@@ -70,24 +97,39 @@ def install_game(game_id):
     print(f"\n[Z-GameStore] Iniciando instalação de: {game['title']}")
     print(f"[Z-GameStore] Plataforma detectada: {game['platform'].upper()}")
     
-    # 2. Download Game
+    # 2. Open a source page or download a verified archive.
+    source_url = game.get("download_url") or game.get("source_url")
+    if not source_url:
+        print("[Erro] Este item não possui uma fonte de download cadastrada.")
+        return 1
     try:
-        print(f"[Z-GameStore] Baixando arquivos...")
-        urllib.request.urlretrieve(game["download_url"], temp_zip)
+        print("[Z-GameStore] Verificando fonte de download...")
+        source_path = source_url.lower().split("?", 1)[0]
+        if not source_path.endswith(".zip"):
+            if open_source(source_url):
+                print("[Info] A fonte foi aberta no navegador. O download deve ser iniciado na página oficial.")
+                return 0
+            print(f"[Erro] Nenhum abridor gráfico disponível. Abra manualmente a fonte oficial: {source_url}")
+            return 1
+        print("[Z-GameStore] Baixando arquivo compactado...")
+        download_archive(source_url, temp_zip)
     except Exception as e:
         print(f"[Erro] Falha no download: {e}")
-        return
+        return 1
 
     # 3. Extract and Organize
     try:
         print(f"[Z-GameStore] Extraindo e organizando em {target_dir}...")
         os.makedirs(target_dir, exist_ok=True)
-        with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
+        with zipfile.ZipFile(temp_zip, "r") as zip_ref:
+            unsafe = [name for name in zip_ref.namelist() if Path(name).is_absolute() or ".." in Path(name).parts]
+            if unsafe:
+                raise ValueError("arquivo compactado contém caminhos inseguros")
             zip_ref.extractall(target_dir)
-        os.remove(temp_zip)
+        temp_zip.unlink(missing_ok=True)
     except Exception as e:
         print(f"[Erro] Falha na extração: {e}")
-        return
+        return 1
 
     # 4. Download Media (Box Art)
     if "image_url" in game:
@@ -105,6 +147,7 @@ def install_game(game_id):
 
     print(f"\n[Sucesso] {game['title']} instalado e pronto para jogar!")
     print(f"Local: {target_dir}")
+    return 0
 
 def create_dos_launcher(game_dir, game):
     # Create a simple .sh or .conf to help EmuDeck/RetroArch
@@ -131,10 +174,11 @@ def main():
 
     if args.command == "list":
         list_games(args.platform)
-    elif args.command == "get":
-        install_game(args.id)
-    else:
-        parser.print_help()
+        return 0
+    if args.command == "get":
+        return install_game(args.id)
+    parser.print_help()
+    return 0
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

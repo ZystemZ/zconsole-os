@@ -124,26 +124,6 @@ RemainAfterExit=no
 WantedBy=multi-user.target
 EOF
 
-# Ensure the startup service is robust
-cat << 'EOF' > /usr/lib/systemd/system/zconsole-startup.service
-[Unit]
-Description=ZConsole OS Startup Animation
-After=plymouth-quit-wait.service
-Before=display-manager.service
-DefaultDependencies=no
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/zconsole-startup-animation.sh
-StandardOutput=null
-StandardError=null
-TimeoutStartSec=15
-RemainAfterExit=no
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
 # Disable Bazzite's startup animation and enable ours
 systemctl disable bazzite-startup-animation.service || true
 systemctl enable zconsole-startup.service

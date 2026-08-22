@@ -107,6 +107,20 @@ def oscr_state() -> dict[str, str]:
     return {"status": "waiting", "cartridge": "Nenhum leitor/cartucho detectado"}
 
 
+def network_status() -> str:
+    """Report connectivity only when an interface is up and has a default route."""
+    for path in glob.glob("/sys/class/net/*/operstate"):
+        interface = Path(path).parent.name
+        if interface == "lo":
+            continue
+        state = read_text(path)
+        if state in {"up", "unknown"}:
+            ok, routes = run_optional(["ip", "route", "show", "default"])
+            if ok and routes:
+                return "Conectado"
+    return "Indisponível"
+
+
 def current_audio() -> int | None:
     ok, output = run_optional(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"])
     match = re.search(r"\b0?\.([0-9]+)", output) if ok else None
@@ -162,7 +176,7 @@ def status() -> dict[str, Any]:
         "volume": current_volume,
         "brightness": current_brightness,
         "brightnessAvailable": current_brightness is not None,
-        "network": "Conectado" if Path("/sys/class/net").exists() else "Indisponível",
+        "network": network_status(),
         "telemetry": {
             "cpuTemp": read_temperature() or "Indisponível",
             "ramUsage": read_memory() or "Indisponível",
@@ -173,14 +187,14 @@ def status() -> dict[str, Any]:
 
 @app.post("/api/brightness")
 def brightness(payload: LevelRequest) -> dict[str, Any]:
-    ok, output = run_optional(["brightnessctl", "set", f"{payload.value}%"])
-    return {"ok": True, "value": payload.value, "applied": ok, "detail": output or "comando indisponível; valor mantido na interface"}
+    applied, output = run_optional(["brightnessctl", "set", f"{payload.value}%"])
+    return {"ok": applied, "value": payload.value, "applied": applied, "detail": output or "comando indisponível; valor mantido na interface"}
 
 
 @app.post("/api/volume")
 def volume(payload: LevelRequest) -> dict[str, Any]:
-    ok, output = run_optional(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{payload.value}%"])
-    return {"ok": True, "value": payload.value, "applied": ok, "detail": output or "comando indisponível; valor mantido na interface"}
+    applied, output = run_optional(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{payload.value}%"])
+    return {"ok": applied, "value": payload.value, "applied": applied, "detail": output or "comando indisponível; valor mantido na interface"}
 
 
 @app.post("/api/power-profile")
@@ -188,7 +202,7 @@ def power_profile(payload: PowerProfileRequest) -> dict[str, Any]:
     profile_names = {"Silencioso": "power-saver", "Equilibrado": "balanced", "Desempenho": "performance"}
     os.environ["ZCONSOLE_POWER_PROFILE"] = payload.profile
     applied, detail = run_optional(["powerprofilesctl", "set", profile_names[payload.profile]])
-    return {"ok": True, "profile": payload.profile, "applied": applied, "detail": detail or "power-profiles-daemon indisponível; perfil mantido na sessão"}
+    return {"ok": applied, "profile": payload.profile, "applied": applied, "detail": detail or "power-profiles-daemon indisponível; perfil mantido na sessão"}
 
 
 @app.post("/api/oscr/{action}")
