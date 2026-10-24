@@ -60,10 +60,21 @@ ScriptFile=/usr/share/plymouth/themes/zconsole/zconsole.script
 EOF
 
 cat << 'EOF' > "$ZCONSOLE_THEME_DIR/zconsole.script"
-logo_image = Image("zconsole.png");
+Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
+Window.SetBackgroundBottomColor(0.0, 0.0, 0.0);
+
+source_image = Image("zconsole.png");
+scale_x = Window.GetWidth() / source_image.GetWidth();
+scale_y = Window.GetHeight() / source_image.GetHeight();
+scale = scale_x;
+if (scale_y < scale_x) scale = scale_y;
+
+image_width = source_image.GetWidth() * scale;
+image_height = source_image.GetHeight() * scale;
+logo_image = source_image.Scale(image_width, image_height);
 logo_sprite = Sprite(logo_image);
-logo_sprite.SetX(Window.GetWidth() / 2 - logo_image.GetWidth() / 2);
-logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
+logo_sprite.SetX(Window.GetX() + (Window.GetWidth() - logo_image.GetWidth()) / 2);
+logo_sprite.SetY(Window.GetY() + (Window.GetHeight() - logo_image.GetHeight()) / 2);
 EOF
 
 # If bazzite theme exists, replace its assets too as a backup
