@@ -151,14 +151,16 @@ systemctl enable zconsole-startup.service
 # Local API for Z-Overlay telemetry and controls. It is loopback-only and fail-safe.
 systemctl enable zconsole-local-api.service || true
 
-# Start the Big Picture UI only after a graphical user session exists.
+# Start Z-GAME HUB after a graphical user session exists. Closing it leaves the
+# Plasma/GNOME session running, so the user returns to the desktop instead of logging out.
 mkdir -p /etc/xdg/autostart
-cat << 'EOF' > /etc/xdg/autostart/zconsole-gamestore.desktop
+rm -f /etc/xdg/autostart/zconsole-gamestore.desktop
+cat << 'EOF' > /etc/xdg/autostart/zconsole-hub.desktop
 [Desktop Entry]
 Type=Application
-Name=Z-GameStore
-Comment=Interface Big Picture do ZConsole OS
-Exec=/usr/bin/zgamestore-gui
+Name=Z-GAME HUB
+Comment=Interface de jogos do ZConsole OS
+Exec=/usr/bin/z-game-hub
 Terminal=false
 X-GNOME-Autostart-enabled=true
 OnlyShowIn=GNOME;KDE;XFCE;
@@ -171,6 +173,22 @@ dnf install -y --skip-unavailable \
     python3-pyserial python3-tkinter \
     rclone htop fastfetch tmux vim wget curl flatpak zip unzip \
     plymouth-scripts mpv python3-fastapi python3-uvicorn brightnessctl wireplumber power-profiles-daemon || true
+
+# Build the Qt Quick launcher supplied with the ZConsole Hub.
+# Keep runtime modules explicit; qt6-qtbase carries the QSQLITE driver.
+echo "Building Z-GAME HUB..."
+dnf install -y \
+    cmake ninja-build gcc-c++ \
+    qt6-qtbase-devel qt6-qtdeclarative-devel \
+    qt6-qtbase qt6-qtdeclarative qt6-qtquickcontrols2
+HUB_BUILD_DIR="$(mktemp -d /tmp/z-game-hub-build.XXXXXX)"
+cmake -S /ctx/z-game-hub -B "$HUB_BUILD_DIR" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build "$HUB_BUILD_DIR" --parallel
+cmake --install "$HUB_BUILD_DIR" --prefix /usr
+rm -rf "$HUB_BUILD_DIR"
+dnf remove -y cmake ninja-build gcc-c++ qt6-qtbase-devel qt6-qtdeclarative-devel
 
 # Set Plymouth Theme
 plymouth-set-default-theme zconsole || true

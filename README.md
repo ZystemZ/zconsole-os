@@ -319,9 +319,13 @@ These are images derived from this template (or similar enough to this template)
 
 ## ZConsole OS V2: Big Picture e ponte local
 
-A imagem do ZConsole incorpora a build estática do **Z-GameStore V2**, uma interface React/Vite em português brasileiro servida pela API local em `127.0.0.1:48521`. O launcher `/usr/bin/zgamestore-gui` inicia o serviço de forma não bloqueante e abre o Chromium em modo kiosk; em imagens mínimas ou máquinas virtuais sem Chromium, o launcher preserva o fallback `/usr/bin/zgamestore-gui-legacy`.
+A imagem agora inclui o **Z-GAME HUB** nativo em Qt Quick/QML, compilado durante o build do sistema. Ele inicia automaticamente em tela cheia quando a sessão gráfica abre. O botão **Voltar ao desktop** pede confirmação e encerra somente o processo do Hub; a sessão Plasma/GNOME permanece aberta. O Hub também fica disponível no menu de aplicativos como `Z-GAME HUB`.
+
+O Z-GameStore V2 e o launcher `/usr/bin/zgamestore-gui` continuam instalados como interface alternativa, mas deixam de iniciar automaticamente. O Hub usa catálogo SQLite próprio; a ponte local do Z-Overlay continua separada.
 
 A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
+
+O código do Hub está em `build_files/z-game-hub`. A imagem instala os módulos Qt necessários para execução e remove os pacotes de desenvolvimento após a compilação.
 
 | Endpoint | Função |
 |---|---|

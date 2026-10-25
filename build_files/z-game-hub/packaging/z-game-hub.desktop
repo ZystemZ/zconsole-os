@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Z-GAME HUB
+Comment=Biblioteca unificada de jogos da Zystem
+Exec=z-game-hub
+Icon=applications-games
+Terminal=false
+Categories=Game;Utility;
