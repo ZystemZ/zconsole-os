@@ -321,7 +321,7 @@ These are images derived from this template (or similar enough to this template)
 
 A imagem agora inclui o **Z-GAME HUB** nativo em Qt Quick/QML, compilado durante o build do sistema. Ele inicia automaticamente em tela cheia quando a sessão gráfica abre. O botão **Voltar ao desktop** pede confirmação e encerra somente o processo do Hub; a sessão Plasma/GNOME permanece aberta. O Hub também fica disponível no menu de aplicativos como `Z-GAME HUB`.
 
-O Z-GameStore V2 e o launcher `/usr/bin/zgamestore-gui` continuam instalados como interface alternativa, mas deixam de iniciar automaticamente. O Hub usa catálogo SQLite próprio; a ponte local do Z-Overlay continua separada.
+O Z-GameStore V2 e o launcher `/usr/bin/zgamestore-gui` continuam instalados como interface alternativa, mas deixam de iniciar automaticamente. A opção **Z-GameStore V2** no menu lateral do Hub abre a interface antiga em modo kiosk. O Hub usa catálogo SQLite próprio; a ponte local do Z-Overlay continua separada.
 
 A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
 

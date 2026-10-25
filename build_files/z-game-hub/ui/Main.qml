@@ -121,12 +121,22 @@ ApplicationWindow {
                         {label:"Dispositivos", icon:"▤"},
                         {label:"Loja e descoberta", icon:"◇"},
                         {label:"Scanner", icon:"⌕"},
-                        {label:"Configurações", icon:"⚙"}
+                        {label:"Configurações", icon:"⚙"},
+                        {label:"Z-GameStore V2", icon:"▣", action:"legacy-store"}
                     ]
                     delegate: Button {
                         Layout.fillWidth: true
                         text: modelData.icon + "    " + modelData.label
-                        onClicked: window.activePage = modelData.label
+                        onClicked: {
+                            if (modelData.action === "legacy-store") {
+                                if (!gameLauncher.launchCommand("/usr/bin/zgamestore-gui")) {
+                                    errorDialog.text = "Não foi possível abrir o Z-GameStore V2."
+                                    errorDialog.open()
+                                }
+                            } else {
+                                window.activePage = modelData.label
+                            }
+                        }
                         background: Rectangle { radius: 8; color: window.activePage === modelData.label ? "#10312C" : "transparent"; border.color: window.activePage === modelData.label ? "#176B5D" : "transparent" }
                         contentItem: Text { text: parent.text; color: window.activePage === modelData.label ? "#20E0C0" : "#B8C7C3"; verticalAlignment: Text.AlignVCenter; leftPadding: 10; font.pixelSize: 14 }
                     }
