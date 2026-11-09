@@ -1,346 +1,140 @@
-# image-template
+# ZConsole OS
 
-This repository is meant to be a template for building your own custom [bootc](https://github.com/bootc-dev/bootc) image. This template is the recommended way to make customizations to any image published by the Universal Blue Project.
+> O sistema operacional do projeto Z-Console: uma plataforma aberta de jogos para computadores, criada para evoluir junto com o launcher, o formato ZCARD e as ferramentas da comunidade.
 
-# Community
+![Tela de inicialização do ZConsole OS](system_files/usr/share/zconsole/boot_splash.png)
 
-If you have questions about this template after following the instructions, try the following spaces:
-- [Universal Blue Forums](https://universal-blue.discourse.group/)
-- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp)
-- [bootc discussion forums](https://github.com/bootc-dev/bootc/discussions) - This is not an Universal Blue managed space, but is an excellent resource if you run into issues with building bootc images.
+## Sobre o projeto
 
-# How to Use
+O **Z-Console** é a iniciativa mais ampla: uma plataforma aberta que pretende aproximar sistema operacional, interface de jogos, ferramentas de desenvolvimento, mídia digital e física e, no futuro, hardware próprio. A filosofia e a visão geral estão no repositório [ZystemZ/ZConsole](https://github.com/ZystemZ/ZConsole).
 
-To get started on your first bootc image, simply read and follow the steps in the next few headings.
-If you prefer instructions in video form, TesterTech created an excellent tutorial, embedded below.
+Este repositório, **ZConsole OS**, cuida da imagem de sistema. Ele deriva de uma base Bazzite/Fedora Atomic com `bootc` e reúne personalizações, serviços e aplicações para uma experiência de console em hardware de PC. É um projeto em desenvolvimento — não representa, por si só, um console físico nem significa que todos os componentes previstos para a plataforma já estejam prontos.
 
-[![Video Tutorial](https://img.youtube.com/vi/IxBl11Zmq5w/0.jpg)](https://www.youtube.com/watch?v=IxBl11Zmq5wE)
-
-## Step 0: Prerequisites
-
-These steps assume you have the following:
-- A Github Account
-- A machine running a bootc image (e.g. Bazzite, Bluefin, Aurora, or Fedora Atomic)
-- Experience installing and using CLI programs
-
-## Step 1: Preparing the Template
-
-### Step 1a: Copying the Template
-
-Select `Use this Template` on this page. You can set the name and description of your repository to whatever you would like, but all other settings should be left untouched.
-
-Once you have finished copying the template, you need to enable the Github Actions workflows for your new repository.
-To enable the workflows, go to the `Actions` tab of the new repository and click the button to enable workflows.
-
-### Step 1b: Cloning the New Repository
-
-Here I will defer to the much superior GitHub documentation on the matter. You can use whichever method is easiest.
-[GitHub Documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-
-Once you have the repository on your local drive, proceed to the next step.
-
-## Step 2: Initial Setup
-
-### Step 2a: Creating a Cosign Key
-
-Container signing is important for end-user security and is enabled on all Universal Blue images. By default the image builds *will fail* if you don't.
-
-First, install the [cosign CLI tool](https://edu.chainguard.dev/open-source/sigstore/cosign/how-to-install-cosign/#installing-cosign-with-the-cosign-binary)
-With the cosign tool installed, run inside your repo folder:
-
-```bash
-COSIGN_PASSWORD="" cosign generate-key-pair
-```
-
-The signing key will be used in GitHub Actions and will not work if it is password protected.
-
-> [!WARNING]
-> Be careful to *never* accidentally commit `cosign.key` into your git repo. If this key goes out to the public, the security of your repository is compromised.
-
-Next, you need to add the key to GitHub. This makes use of GitHub's secret signing system.
-
-<details>
-    <summary>Using the Github Web Interface (preferred)</summary>
-
-Go to your repository settings, under `Secrets and Variables` -> `Actions`
-![image](https://user-images.githubusercontent.com/1264109/216735595-0ecf1b66-b9ee-439e-87d7-c8cc43c2110a.png)
-Add a new secret and name it `SIGNING_SECRET`, then paste the contents of `cosign.key` into the secret and save it. Make sure it's the .key file and not the .pub file. Once done, it should look like this:
-![image](https://user-images.githubusercontent.com/1264109/216735690-2d19271f-cee2-45ac-a039-23e6a4c16b34.png)
-</details>
-<details>
-<summary>Using the Github CLI</summary>
-
-If you have the `github-cli` installed, run:
-
-```bash
-gh secret set SIGNING_SECRET < cosign.key
-```
-</details>
-
-### Step 2b: Choosing Your Base Image
-
-To choose a base image, simply modify the line in the container file starting with `FROM`. This will be the image your image derives from, and is your starting point for modifications.
-For a base image, you can choose any of the Universal Blue images or start from a Fedora Atomic system. Below this paragraph is a dropdown with a non-exhaustive list of potential base images.
-
-<details>
-    <summary>Base Images</summary>
-
-- Bazzite: `ghcr.io/ublue-os/bazzite:stable`
-- Aurora: `ghcr.io/ublue-os/aurora:stable`
-- Bluefin: `ghcr.io/ublue-os/bluefin:stable`
-- Universal Blue Base: `ghcr.io/ublue-os/base-main:latest`
-- Fedora: `quay.io/fedora/fedora-bootc:44`
-
-You can find more Universal Blue images on the [packages page](https://github.com/orgs/ublue-os/packages).
-</details>
-
-If you don't know which image to pick, choosing the one your system is currently on is the best bet for a smooth transition. To find out what image your system currently uses, run the following command:
-```bash
-sudo bootc status
-```
-This will show you all the info you need to know about your current image. The image you are currently on is displayed after `Booted image:`. Paste that information after the `FROM` statement in the Containerfile to set it as your base image.
-
-### Step 2c: Changing Names
-
-Change the `IMAGE_NAME` and `REPO_ORGANIZATION` variable inside the `image-template.env`
-
-To commit and push all the files changed and added in step 2 into your Github repository:
-```bash
-git add Containerfile image-template.env cosign.pub
-git commit -m "Initial Setup"
-git push
-```
-Once pushed, go look at the Actions tab on your Github repository's page.  The green checkmark should be showing on the top commit, which means your new image is ready!
-
-## Step 3: Switch to Your Image
-
-From your bootc system, run the following command substituting in your Github username and image name where noted.
-```bash
-sudo bootc switch ghcr.io/<username>/<image_name>
-```
-This should queue your image for the next reboot, which you can do immediately after the command finishes. You have officially set up your custom image! See the following section for an explanation of the important parts of the template for customization.
-
-# Repository Contents
-
-## Containerfile
-
-The [Containerfile](./Containerfile) defines the operations used to customize the selected image.This file is the entrypoint for your image build, and works exactly like a regular podman Containerfile. For reference, please see the [Podman Documentation](https://docs.podman.io/en/latest/Introduction.html).
-
-## build.sh
-
-The [build.sh](./build_files/build.sh) file is called from your Containerfile. It is the best place to install new packages or make any other customization to your system. There are customization examples contained within it for your perusal.
-
-## build.yml
-
-The [build.yml](./.github/workflows/build.yml) Github Actions workflow creates your custom OCI image and publishes it to the Github Container Registry (GHCR). By default, the image name will match the Github repository name.
-
-# Building Disk Images
-
-This template provides an out of the box workflow for creating disk images (ISO, qcow, raw) for your custom OCI image which can be used to directly install onto your machines.
-
-This template provides a way to upload the disk images that is generated from the workflow to a S3 bucket. The disk images will also be available as an artifact from the job, if you wish to use an alternate provider. To upload to S3 we use [rclone](https://rclone.org/) which is able to use [many S3 providers](https://rclone.org/s3/).
-
-## Setting Up ISO Builds
-
-The [build-disk.yml](./.github/workflows/build-disk.yml) Github Actions workflow creates a disk image from your OCI image by utilizing the [bootc-image-builder](https://osbuild.org/docs/bootc/). In order to use this workflow you must complete the following steps:
-
-1. Modify `disk_config/iso.toml` to point to your custom container image before generating an ISO image.
-2. If you changed your image name from the default in `build.yml` then in the `build-disk.yml` file edit the `IMAGE_REGISTRY`, `IMAGE_NAME` and `DEFAULT_TAG` environment variables with the correct values. If you did not make changes, skip this step.
-3. Finally, if you want to upload your disk images to S3 then you will need to add your S3 configuration to the repository's Action secrets. This can be found by going to your repository settings, under `Secrets and Variables` -> `Actions`. You will need to add the following
-  - `S3_PROVIDER` - Must match one of the values from the [supported list](https://rclone.org/s3/)
-  - `S3_BUCKET_NAME` - Your unique bucket name
-  - `S3_ACCESS_KEY_ID` - It is recommended that you make a separate key just for this workflow
-  - `S3_SECRET_ACCESS_KEY` - See above.
-  - `S3_REGION` - The region your bucket lives in. If you do not know then set this value to `auto`.
-  - `S3_ENDPOINT` - This value will be specific to the bucket as well.
-
-Once the workflow is done, you'll find the disk images either in your S3 bucket or as part of the summary under `Artifacts` after the workflow is completed.
-
-# Artifacthub
-
-This template comes with the necessary tooling to index your image on [artifacthub.io](https://artifacthub.io). Use the `artifacthub-repo.yml` file at the root to verify yourself as the publisher. This is important to you for a few reasons:
-
-- The value of artifacthub is it's one place for people to index their custom images, and since we depend on each other to learn, it helps grow the community. 
-- You get to see your pet project listed with the other cool projects in Cloud Native.
-- Since the site puts your README front and center, it's a good way to learn how to write a good README, learn some marketing, finding your audience, etc. 
-
-[Discussion Thread](https://universal-blue.discourse.group/t/listing-your-custom-image-on-artifacthub/6446)
-
-# Justfile Documentation
-
-The `Justfile` contains various commands and configurations for building and managing container images and virtual machine images using Podman and other utilities. It is also used inside Github Actions.
-
-## Required Utilities
-
-Container build:
-- [just](https://just.systems/man/en/introduction.html)
-- [podman](https://docs.podman.io/en/latest)
-- [jq](https://jqlang.org)
-
-These are usually preinstalled on Universal Blue's Bootc Images.
-
-Linting:
-- shfmt
-- shellcheck
-
-## Environment Variables
-
-These are all sourced from the `image-template.env` file.
-
-- `image_name`: The name of the image (default: "image-template").
-- `default_tag`: The default tag for the image (default: "latest").
-- `bib_image`: The Bootc Image Builder (BIB) image (default: "quay.io/centos-bootc/bootc-image-builder:latest").
-
-## Building The Image
-
-All these recipes will work (with default values) without supplying any arguments to them, e.g. `just build`
-
-### `just build`
-
-Builds a container image using Podman.
-
-```bash
-just build $target_image $tag
-```
-
-Arguments:
-- `$target_image`: The tag you want to apply to the image (default: `$image_name`).
-- `$tag`: The tag for the image (default: `$default_tag`).
-
-### Rechunking
-We can flatten the layers of container images to make sure there isn't a single huge layer when your image gets published.
-This does not make your image faster to download, just provides better resumability.
-
-#### `just ostree-rechunk`
-Rechunks the existing Image with [rpm-ostree](https://coreos.github.io/rpm-ostree/build-chunked-oci/)
-
-```bash
-just ostree-rechunk $target_image $tag
-```
-
-#### `just rechunk`
-Rechunks the existing Image with [chunkah](https://github.com/coreos/chunkah), this is probably gonna be the default here at some point, try it out, it's cool.
-
-```bash
-just rechunk $target_image $tag
-```
-
-### Switching to the locally built image for testing
-
-The image has to be in the containers-storage owned by root, to be able to rebase to it, see the `_rootful_load_image` recipe.
-
-`sudo just build` and `sudo just ostree-rechunk` builds directly as root and allows you to skip the transfer to the root containers-storage.
-
-You can rebase to all the images that are in your containers-storage:
-
-```
-sudo podman image list --filter=label=containers.bootc=1
-```
-
-See [man bootc switch](https://bootc.dev/bootc/man/bootc-switch.8.html) for more info.
-
-```
-sudo bootc switch --transport containers-storage localhost/myimage:latest
-```
-
-and reboot your system!
-
-## Building and Running Virtual Machines and ISOs
-
-The below commands all build QCOW2 images. To produce or use a different type of image, substitute in the command with that type in the place of `qcow2`. The available types are `qcow2`, `iso`, and `raw`.
-
-### `just build-qcow2`
-
-Builds a QCOW2 virtual machine image.
-
-```bash
-just build-qcow2 $target_image $tag
-```
-
-### `just rebuild-qcow2`
-
-Rebuilds a QCOW2 virtual machine image.
-
-```bash
-just rebuild-vm $target_image $tag
-```
-
-### `just run-vm-qcow2`
-
-Runs a virtual machine from a QCOW2 image.
-
-```bash
-just run-vm-qcow2 $target_image $tag
-```
-
-### `just spawn-vm`
-
-Runs a virtual machine using systemd-vmspawn.
-
-```bash
-just spawn-vm rebuild="0" type="qcow2" ram="6G"
-```
-
-## File Management
-
-### `just check`
-
-Checks the syntax of all `.just` files and the `Justfile`.
-
-### `just fix`
-
-Fixes the syntax of all `.just` files and the `Justfile`.
-
-### `just clean`
-
-Cleans the repository by removing build artifacts.
-
-### `just lint`
-
-Runs shell check on all Bash scripts.
-
-### `just format`
-
-Runs shfmt on all Bash scripts.
-
-## Additional resources
-
-For additional driver support, ublue maintains a set of scripts and container images available at [ublue-akmod](https://github.com/ublue-os/akmods). These images include the necessary scripts to install multiple kernel drivers within the container (Nvidia, OpenRazer, Framework...). The documentation provides guidance on how to properly integrate these drivers into your container image.
-
-## Community Examples
-
-These are images derived from this template (or similar enough to this template). Reference them when building your image!
-
-- [m2Giles' OS](https://github.com/m2giles/m2os)
-- [bOS](https://github.com/bsherman/bos)
-- [Homer](https://github.com/bketelsen/homer/)
-- [Amy OS](https://github.com/astrovm/amyos)
-- [VeneOS](https://github.com/Venefilyn/veneos)
-
-## ZConsole OS V2: ZGameHub, navegador Web e ponte local
-
-A imagem compila a versão upstream do **Z-GAME HUB** em Qt Quick/QML a partir de `ZystemZ/ZGameHub`. O snapshot de código fica em `build_files/z-game-hub`; a revisão de origem e as instruções para atualizá-la estão em `build_files/z-game-hub/UPSTREAM.md`. O build instala os runtimes Qt necessários, o catálogo SQLite, recursos QML, atalhos de menu e o autostart gráfico. Após o login gráfico, o Hub inicia em tela cheia. **Voltar ao desktop** pede confirmação e encerra somente o Hub, mantendo a sessão Plasma/GNOME aberta.
-
-O Hub fornece uma biblioteca local de jogos e aplicativos, suporte a ROMs via emulador configurado, integração com launchers disponíveis no host, Quiver e criação/execução de ZCARDs. A página **Loja e descoberta** também abre o Z-GameStore legado e o navegador Web. Steam, Heroic, Lutris, Bottles, jogos, ROMs e BIOS não são redistribuídos pelo Hub: o scanner usa os aplicativos e arquivos já instalados ou fornecidos pelo usuário. O Flatpak e o RetroArch continuam disponíveis na imagem.
-
-A compilação inclui Chromium como navegador do sistema e o atalho **Navegador Web** no menu de aplicativos. O Z-GameStore legado e `/usr/bin/zgamestore-gui` permanecem instalados; a opção correspondente no Hub continua abrindo a interface anterior. O catálogo do Hub e a ponte local do Z-Overlay são componentes separados.
-
-A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
-
-### Tela de inicialização e ISO
-
-O tema Plymouth usa `system_files/usr/share/zconsole/boot_splash.png`; esse arquivo já corresponde exatamente à imagem de carregamento enviada. O wordmark transparente extraído da mesma arte fica em `system_files/usr/share/zconsole/logo_wordmark.png` e é aplicado à barra lateral e ao cabeçalho do instalador Anaconda. O logo quadrado de controle existente permanece preservado.
-
-Para gerar uma ISO em um PC comum, execute o workflow [Build disk images](https://github.com/ZystemZ/zconsole-os/actions/workflows/build-disk.yml) na branch `main`, selecione `amd64` e, após concluir o build da imagem de sistema, baixe `artifact-anaconda-iso` na página da execução. O artifact fica disponível por 30 dias. A criação de um GitHub Release público é opcional e desativada por padrão.
-
-| Endpoint | Função |
+| Projeto | Papel no ecossistema |
 |---|---|
-| `GET /api/status` | CPU, RAM, bateria, volume, brilho real via `brightnessctl`/sysfs, perfil de energia e OSCR |
-| `POST /api/brightness` | Aplica um valor de 0 a 100 usando `brightnessctl` |
-| `POST /api/volume` | Solicita volume de 0 a 100 usando `wpctl` |
-| `POST /api/power-profile` | Define o perfil lógico Silencioso, Equilibrado ou Desempenho |
-| `POST /api/oscr/{action}` | Consulta/prepara ações do leitor sem tocar em dados do cartucho |
+| [ZConsole](https://github.com/ZystemZ/ZConsole) | Visão, arquitetura e direção da plataforma aberta. |
+| [ZConsole OS](https://github.com/ZystemZ/zconsole-os) | Imagem bootc, configurações do sistema, serviços e geração de ISO. |
+| [ZGameHub](https://github.com/ZystemZ/ZGameHub) | Interface/launcher de jogos e conteúdos, também integrada nesta imagem. |
+| [ZCard](https://github.com/ZystemZ/ZCard) | Formato ZCARD e ferramentas/protótipos de runtime e criação. |
+| **ZCardStudio** | Ferramenta complementar de autoria de ZCARDs prevista para o ecossistema; ainda não vem instalada nem integrada como aplicativo nesta imagem. |
 
-A prévia automática dos cards só é ativada depois de dois segundos de foco e somente quando há uma fonte oficial configurada. O card de DOOM usa um embed oficial verificado em modo privacy-enhanced; os demais cards informam `Sem prévia oficial` até que uma fonte compatível e licenciada seja cadastrada. Isso evita embutir clipes genéricos ou presumir URLs diretas de terceiros.
+## O que já está integrado
 
-Para testar o serviço na imagem instalada, use `systemctl status zconsole-local-api.service` e depois `curl http://127.0.0.1:48521/api/status`. Para gerar novamente os artefatos, compile o projeto `zconsole-store-v2`, copie `dist/public` para `system_files/usr/share/zconsole/gamestore` e execute o workflow de build da imagem antes do workflow de ISO.
+### Sistema e experiência de uso
+
+- Imagem de sistema baseada em bootc, derivada do ecossistema Bazzite/Fedora Atomic.
+- Identidade visual própria, incluindo tema Plymouth com a arte de inicialização do ZConsole e wordmark utilizado no instalador Anaconda.
+- Sessão gráfica com inicialização automática do Z-GAME HUB. O Hub abre em tela cheia; ao fechá-lo, a sessão do ambiente gráfico continua aberta para voltar ao desktop.
+- Chromium como navegador Web do sistema, com atalho próprio no menu e acesso pelo Hub.
+- Ferramentas disponíveis para organizar diretórios de ROMs e saves e detectar algumas instalações locais.
+
+### Integração do Z-GAME HUB
+
+A imagem compila um snapshot do projeto upstream [ZystemZ/ZGameHub](https://github.com/ZystemZ/ZGameHub). O código incorporado fica em [`build_files/z-game-hub`](build_files/z-game-hub); a origem, a revisão e o processo para atualizar o snapshot estão documentados em [`UPSTREAM.md`](build_files/z-game-hub/UPSTREAM.md).
+
+O Hub reúne uma biblioteca local de jogos e aplicativos, navegação por teclado/controle e ações para iniciar conteúdos usando os programas instalados e configurados no computador. Entre as capacidades do Hub estão integração com launchers compatíveis, catálogo comunitário Quiver, ROMs encaminhadas a um emulador externo configurado e uma tela **ZCARD / arquivos**. A disponibilidade de cada integração depende do launcher, dos arquivos e das configurações presentes no host.
+
+O **Z-GameStore** anterior foi mantido como componente legado e pode ser aberto pelo Hub. Ele e o catálogo do Z-GAME HUB são componentes distintos.
+
+### ZCARD e ZCardStudio
+
+**ZCARD** é a proposta de mídia/cartucho do ecossistema Z-Console, com uma representação digital para organizar metadados, código, recursos e regiões de dados. O projeto relacionado [ZystemZ/ZCard](https://github.com/ZystemZ/ZCard) documenta o formato e reúne implementações de referência ainda em evolução.
+
+Na versão integrada do Z-GAME HUB, a tela **ZCARD / arquivos** permite trabalhar com cartões e conteúdos locais compatíveis: montar e inspecionar cartões, listar arquivos e gerar variantes suportadas pelo builder incorporado. O Hub reconhece cartões de projeto/diretórios, arquivos ZIP legados `.zcard`, containers `ZCF0` e conteúdos `ZUF0`, conforme a versão do formato e o manifesto presente. ROMs não são executadas como se fossem executáveis ZConsole: são encaminhadas ao emulador que o usuário configurou. Executáveis nativos só são iniciados quando compatíveis com o sistema host.
+
+O **ZCardStudio** é a ferramenta complementar prevista para a autoria de cartões. A integração dedicada do Studio com o sistema e com o fluxo do Hub **ainda está no roadmap**; nesta imagem, a ferramenta não é instalada. Até essa integração existir, use a tela ZCARD / arquivos do Hub e consulte o projeto [ZCard](https://github.com/ZystemZ/ZCard) para as ferramentas e especificações disponíveis.
+
+Cartuchos/leitores físicos e o armazenamento em mídia física continuam sendo objetivos de desenvolvimento; esta ISO não inclui nem promete hardware de cartucho próprio.
+
+### Navegador, ponte local e ferramentas
+
+- **Chromium:** navegador Web instalado no sistema, com atalho no menu e ação no Hub.
+- **`zconsole-setup`:** cria a estrutura inicial de pastas para ROMs e saves e registra algumas detecções locais. Não baixa jogos, ROMs ou BIOS.
+- **`zconsole-cloud-sync`:** utilitário de linha de comando para sincronizar saves com `rclone`. Requer que o usuário instale/configure o remote `zconsole_cloud`; não é uma sincronização em nuvem automática nem um serviço de conta ZConsole. Por usar `rclone sync`, revise o remote e mantenha backup antes de sincronizar, pois o destino é espelhado.
+- **`zconsole-local-api.service`:** API local em `127.0.0.1:48521`, usada como ponte para interfaces locais, incluindo o trabalho de integração com o Z-Overlay. Ela fornece status/telemetria e tenta aplicar controles de volume, brilho e perfil de energia quando o hardware e os serviços correspondentes estão disponíveis. As ações OSCR atualmente detectam/preparam o estado do leitor; não afirmam ler ou gravar dados de um cartucho.
+
+A API escuta somente em loopback; **não a publique na rede ou na Internet**. Comandos ou recursos de hardware ausentes falham de forma segura e podem aparecer como indisponíveis.
+
+| Rota | Função atual |
+|---|---|
+| `GET /api/status` | Estado do sistema, telemetria e disponibilidade dos controles/leitor. |
+| `POST /api/brightness` | Solicita brilho de 0 a 100 via `brightnessctl`, quando disponível. |
+| `POST /api/volume` | Solicita volume de 0 a 100 via `wpctl`, quando disponível. |
+| `POST /api/power-profile` | Solicita perfil Silencioso, Equilibrado ou Desempenho, quando suportado. |
+| `POST /api/oscr/{action}` | Consulta/prepara ações OSCR; atualmente não lê nem altera dados do cartão. |
+
+Steam, Heroic, Lutris, jogos comerciais, ROMs, BIOS e contas de terceiros **não são redistribuídos** por este repositório. O Hub procura conteúdos que o usuário já possui ou adiciona; respeite as licenças e os termos dos respectivos projetos e fornecedores.
+
+## Alterações próprias deste sistema
+
+Além de compor componentes upstream, este projeto mantém adaptações específicas do ZConsole OS:
+
+- Containerfile e scripts para compor a imagem e instalar os componentes do sistema.
+- Snapshot do ZGameHub com integração de build Linux, entrada de menu/ícone, inicialização em tela cheia, confirmação ao sair e ações para navegador e loja legada.
+- Tema de boot e identidade visual do ZConsole, com assets reutilizados também no instalador.
+- Chromium e associação de links Web no desktop.
+- Serviços de inicialização, configuração inicial, ponte local e integração de telemetria/controles.
+- Compatibilidade no build da imagem com o caminho de repositórios Fedora 45 usado pelo builder da ISO.
+- Workflows de GitHub Actions para compilar, publicar e assinar a imagem de sistema, além de gerar ISO Anaconda e QCOW2.
+
+As mudanças específicas do sistema ficam neste repositório; melhorias gerais do launcher, do formato de cartões ou de outros componentes devem ser acompanhadas também nos respectivos projetos upstream.
+
+## Direção e integrações futuras
+
+A visão publicada no repositório [ZConsole](https://github.com/ZystemZ/ZConsole) inclui os itens abaixo. Eles são **objetivos em desenvolvimento**, sem promessa de disponibilidade ou prazo; não devem ser confundidos com recursos já entregues nesta imagem:
+
+- **ZCardStudio:** fluxo de autoria mais completo, conectado às especificações e ferramentas do ZCARD.
+- **SDK e API de jogos do Z-Console:** ferramentas/documentação para que desenvolvedores criem e integrem jogos e acessórios.
+- **Launcher, catálogo/loja e serviços online** mais integrados à plataforma, complementando o Z-GAME HUB e o Z-GameStore existentes.
+- **Controles, firmware e hardware aberto**, incluindo pesquisa de leitor e mídia física ZCARD e eventual suporte a mídia óptica.
+- **Atualizações do sistema, perfis e saves em nuvem** com configuração e comportamento seguros e explícitos.
+- **Compatibilidade e ferramentas para jogos:** evolução de emulação, suporte a jogos nativos e investigação de fluxos Proton/Vulkan conforme os projetos e licenças permitirem.
+- **Comunidade, documentação e extensibilidade:** facilitar contribuições, criação de jogos, acessórios e adaptações pela comunidade.
+
+O princípio é integrar por etapas: preferir formatos e interfaces documentados, preservar o controle do usuário sobre jogos e saves e identificar claramente quais serviços dependem de terceiros.
+
+## Como compilar e testar
+
+### Ferramentas
+
+O fluxo de desenvolvimento utiliza Git, [Podman](https://podman.io/), [`just`](https://just.systems/) e as ferramentas definidas no repositório. O build do Hub utiliza CMake, Ninja, C++ e Qt 6. O pipeline de publicação usa GitHub Actions e o GitHub Container Registry (GHCR); a assinatura da imagem utiliza Cosign.
+
+### Comandos locais
+
+Na raiz do repositório:
+
+```bash
+just check       # valida a sintaxe do Justfile
+just lint        # roda ShellCheck nos scripts Bash
+just build       # compila a imagem de sistema localmente
+just build-iso   # tenta gerar uma ISO a partir da imagem local
+just build-qcow2 # gera uma imagem QCOW2 para máquina virtual
+```
+
+A geração de imagens de disco requer Podman e permissões/configuração compatíveis com o builder. Os comandos locais são destinados a desenvolvimento; para artifacts de distribuição, use o workflow do GitHub Actions.
+
+### ISO para baixar
+
+1. Abra o workflow [Build disk images](https://github.com/ZystemZ/zconsole-os/actions/workflows/build-disk.yml) e escolha **Run workflow** na branch `main`.
+2. Selecione `amd64` ou `arm64` conforme o computador-alvo. A geração de ISO é demorada e requer que o build da imagem mais recente tenha terminado.
+3. Na execução concluída, baixe o artifact **`artifact-anaconda-iso`** e extraia o `.iso` do ZIP. Para máquinas virtuais, baixe **`artifact-qcow2`**.
+4. Os artifacts do Actions são temporários e ficam disponíveis por 30 dias. A criação de GitHub Release público é opcional e permanece desativada por padrão.
+
+Para instalação em hardware real, verifique os requisitos de armazenamento, faça backup dos dados e confira cuidadosamente o disco selecionado pelo instalador antes de prosseguir.
+
+## Organização do repositório
+
+| Caminho | Conteúdo |
+|---|---|
+| [`Containerfile`](Containerfile) | Definição da imagem bootc do ZConsole OS. |
+| [`build_files/build.sh`](build_files/build.sh) | Personalizações, pacotes, serviços e build/instalação do Hub. |
+| [`build_files/z-game-hub`](build_files/z-game-hub) | Snapshot upstream do ZGameHub incorporado ao build. |
+| [`system_files`](system_files) | Assets de identidade, aplicações e unidades do sistema. |
+| [`disk_config`](disk_config) | Configuração de ISO e imagens de disco. |
+| [`.github/workflows/build.yml`](.github/workflows/build.yml) | Build, publicação e assinatura da imagem. |
+| [`.github/workflows/build-disk.yml`](.github/workflows/build-disk.yml) | Geração e upload dos artifacts de disco/ISO. |
+| [`Justfile`](Justfile) | Comandos locais usados no desenvolvimento e nos builds. |
+
+## Contribuição e licenças
+
+Contribuições em sistema, launcher, formatos, ferramentas, hardware e documentação são bem-vindas. Para mudanças no snapshot do Hub, consulte [`UPSTREAM.md`](build_files/z-game-hub/UPSTREAM.md) e mantenha as adaptações necessárias ao sistema. Antes de redistribuir código ou assets, consulte a licença deste repositório, dos componentes incorporados e dos projetos upstream; cada componente pode ter seus próprios termos.
