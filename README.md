@@ -327,6 +327,12 @@ A compilação inclui Chromium como navegador do sistema e o atalho **Navegador 
 
 A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
 
+### Tela de inicialização e ISO
+
+O tema Plymouth usa `system_files/usr/share/zconsole/boot_splash.png`; esse arquivo já corresponde exatamente à imagem de carregamento enviada. O wordmark transparente extraído da mesma arte fica em `system_files/usr/share/zconsole/logo_wordmark.png` e é aplicado à barra lateral e ao cabeçalho do instalador Anaconda. O logo quadrado de controle existente permanece preservado.
+
+Para gerar uma ISO em um PC comum, execute o workflow [Build disk images](https://github.com/ZystemZ/zconsole-os/actions/workflows/build-disk.yml) na branch `main`, selecione `amd64` e, após concluir o build da imagem de sistema, baixe `artifact-anaconda-iso` na página da execução. O artifact fica disponível por 30 dias. A criação de um GitHub Release público é opcional e desativada por padrão.
+
 | Endpoint | Função |
 |---|---|
 | `GET /api/status` | CPU, RAM, bateria, volume, brilho real via `brightnessctl`/sysfs, perfil de energia e OSCR |

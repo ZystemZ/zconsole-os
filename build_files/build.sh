@@ -85,8 +85,8 @@ fi
 ### ANACONDA INSTALLER BRANDING
 echo "Branding the Anaconda Installer..."
 mkdir -p /usr/share/anaconda/pixmaps
-cp -f /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/sidebar-logo.png
-cp -f /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/topbar-logo.png
+cp -f /usr/share/zconsole/logo_wordmark.png /usr/share/anaconda/pixmaps/sidebar-logo.png
+cp -f /usr/share/zconsole/logo_wordmark.png /usr/share/anaconda/pixmaps/topbar-logo.png
 if [ -f /etc/anaconda/anaconda.conf ]; then
     sed -i 's/productname = .*/productname = ZConsole OS/' /etc/anaconda/anaconda.conf
 fi

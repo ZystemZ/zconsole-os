@@ -4,8 +4,8 @@ name: Build disk images
 on:
   workflow_dispatch:
     inputs:
-      upload-to-s3:
-        description: "Upload to S3"
+      publish-release:
+        description: "Criar um GitHub Release público com metadados (a ISO continua no artifact do Actions)"
         required: false
         default: false
         type: boolean
@@ -89,18 +89,18 @@ jobs:
           additional-args: --use-librepo=True --rootfs btrfs
 
       - name: Upload disk images and Checksum to Job Artifacts
-        if: inputs.upload-to-s3 != true && github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: artifact-${{ matrix.disk-type }}
           path: ${{ steps.build.outputs.output-directory }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
           compression-level: 0
           overwrite: true
 
       - name: Publish Release
-        if: github.event_name != 'pull_request' && matrix.disk-type == 'anaconda-iso'
+        if: inputs.publish-release == true && github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && matrix.disk-type == 'anaconda-iso'
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -109,17 +109,17 @@ jobs:
           name: "ZConsole OS v1.0 (Build ${{ github.run_number }})"
           body: |
             ## ZConsole OS v1.0 - Lançamento Oficial
-            - Baseado em Bazzite / Fedora Atomic (Português PT-BR)
-            - Inclui ZGSDK, Cloud Sync e Z-GameStore (Big Picture)
-            - Suporte a leitor de cartuchos (OSCR) e EmuDeck
+            - Baseado em Bazzite / Fedora Atomic
+            - Interface Z-GAME HUB e navegador Chromium
+            - Integrações ZConsole para jogos, ZCARD e Quiver
             
             ### Como instalar:
-            1. Baixe o artefato `artifact-anaconda-iso` na execução do GitHub Actions.
+            1. Baixe o artifact `artifact-anaconda-iso` na execução do GitHub Actions.
             2. Extraia o arquivo `.iso` do ZIP baixado.
             3. Use o Rufus (modo DD) para gravar em um pendrive de 16GB+.
             4. O QCOW2 fica no artefato `artifact-qcow2` para uso em máquinas virtuais.
 
-            Os arquivos de disco não são anexados diretamente ao Release porque o GitHub limita assets individuais a 2 GiB. O manifesto pequeno abaixo permanece no Release para referência.
+            A ISO fica no artifact do Actions por 30 dias. Este Release contém apenas os metadados JSON correspondentes.
           files: |
             ${{ steps.build.outputs.output-directory }}/**/*.json
           fail_on_unmatched_files: true
