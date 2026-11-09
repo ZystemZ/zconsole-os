@@ -1,0 +1,6 @@
+module ZGameHub
+ZButton 1.0 ZButton.qml
+GameCard 1.0 GameCard.qml
+ZTextField 1.0 ZTextField.qml
+ZComboBox 1.0 ZComboBox.qml
+ZTextArea 1.0 ZTextArea.qml

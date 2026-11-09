@@ -1,0 +1,17 @@
+Third-party components in the Windows deployment
+
+This package is built with Qt 6 and uses windeployqt to stage Qt libraries, plugins, and QML modules. Qt's licensing terms depend on the Qt distribution and components used. Before redistributing a built package, review the license texts and compliance requirements supplied with the Qt SDK and the current Qt licensing information: https://www.qt.io/licensing/.
+
+The SQLite driver is part of the Qt SQL plugin deployment. Review its notices as supplied by the Qt SDK.
+
+The build excludes compiler runtime DLLs from the developer machine. If needed, install the official Microsoft Visual C++ 2015-2022 Redistributable x64 using the optional WinGet script or Microsoft's official distribution channel.
+
+Steam, Heroic Games Launcher, Epic Games Launcher, Ubisoft Connect, RetroArch, games, and ROMs are not bundled in this package. The optional WinGet batch script asks before it installs each launcher and delegates downloads to their package providers. Their names and trademarks belong to their respective owners.
+
+When a user imports a Steam game without local artwork, Z-GAME HUB may request that game's public capsule image from Steam's static CDN and save a local copy in the user's application-data folder. Artwork files are not included in the source or application package and remain subject to the rights and terms of their respective owners.
+
+Quiver Launcher is an independent MIT-licensed project. Z-GAME HUB does not bundle or execute the separate Quiver Launcher application; it implements a native Qt/QML port of the community catalog, release lookup, archive installation, and library handoff. The project is used as a behavioral/schema reference, not copied into this source tree. Z-GAME HUB reads the public JSON lists from the legacy Quiver community catalog at runtime and caches them locally; it does not vendor those catalog files. The legacy catalog is deprecated and no longer accepts submissions. See https://github.com/tgeorgiadis/quiver-launcher/blob/main/LICENSE and https://github.com/tgeorgiadis/quiver-community-app-catalog for their terms and status.
+
+The Quiver catalog integration may download ZIP release assets from public GitHub or GitLab repositories selected by a catalog entry. Those projects, their releases, artwork, trademarks, licenses, and any required original game data are maintained by their respective owners. Z-GAME HUB does not bundle ROMs, BIOS, firmware, copyrighted game data, or those third-party releases.
+
+The developer setup script can download Python, aqtinstall, and a Qt SDK for the build environment. These development dependencies are not embedded in the shipped ZIP by that setup script. Review the applicable Qt, Python, and aqtinstall license terms before redistributing development tools or a compiled package.

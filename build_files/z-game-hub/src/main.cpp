@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QStandardPaths>
+#include <QQmlContext>
 #include <QDir>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -9,11 +9,13 @@
 #include "GameCatalog.h"
 #include "Scanner.h"
 #include "Launcher.h"
+#include "QuiverIntegration.h"
+#include "ZCardService.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationName("Z-GAME HUB");
-    QGuiApplication::setApplicationVersion("1.0.0");
+    QGuiApplication::setApplicationVersion("1.3.0");
     QGuiApplication::setOrganizationName("Zystem");
 
     const QString dataDir = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -35,11 +37,15 @@ int main(int argc, char *argv[]) {
 
     Scanner scanner(&catalog);
     Launcher launcher;
+    QuiverIntegration quiverIntegration;
+    ZCardService zcardService;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("gameCatalog", &catalog);
     engine.rootContext()->setContextProperty("gameScanner", &scanner);
     engine.rootContext()->setContextProperty("gameLauncher", &launcher);
+    engine.rootContext()->setContextProperty("quiverIntegration", &quiverIntegration);
+    engine.rootContext()->setContextProperty("zcardService", &zcardService);
     engine.loadFromModule("ZGameHub", "Main");
     if (engine.rootObjects().isEmpty()) return 4;
     return app.exec();

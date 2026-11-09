@@ -4,12 +4,12 @@ import QtQuick.Controls
 Button {
     id: control
     property bool accent: false
-    implicitHeight: 38
-    leftPadding: 14
-    rightPadding: 14
+    implicitHeight: 44
+    leftPadding: 18
+    rightPadding: 18
     contentItem: Text {
         text: control.text
-        color: control.accent ? "#03100E" : "#DCEBE7"
+        color: control.accent ? "#03100E" : "#D9F8EB"
         font.pixelSize: 12
         font.bold: control.accent
         horizontalAlignment: Text.AlignHCenter
@@ -17,12 +17,12 @@ Button {
         elide: Text.ElideRight
     }
     background: Rectangle {
-        radius: 8
-        color: control.down ? (control.accent ? "#0DB796" : "#18312D")
-                            : control.hovered ? (control.accent ? "#29E8C6" : "#142923")
-                                              : (control.accent ? "#12D9BA" : "#101B19")
+        radius: 18
+        color: control.down ? (control.accent ? "#12B887" : "#1A3B31")
+                            : control.hovered ? (control.accent ? "#50FFC0" : "#15382D")
+                                              : (control.accent ? "#2CF1AA" : "#0D211B")
         border.width: control.activeFocus ? 2 : 1
-        border.color: control.activeFocus ? "#8AFFF0" : (control.accent ? "#1EE8C6" : "#294840")
-        Behavior on color { ColorAnimation { duration: 100 } }
+        border.color: control.activeFocus ? "#B7FFE8" : (control.accent ? "#46FFC0" : "#275848")
+        Behavior on color { ColorAnimation { duration: 160 } }
     }
 }
