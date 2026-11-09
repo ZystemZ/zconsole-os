@@ -1,8 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=Z-GAME HUB
-Comment=Biblioteca unificada de jogos da Zystem
-Exec=z-game-hub
-Icon=applications-games
+GenericName=Game Library and Launcher
+Comment=Biblioteca e interface de jogos do ZConsole OS
+Exec=/usr/bin/z-game-hub
+Icon=zconsole-mark
 Terminal=false
-Categories=Game;Utility;
+Categories=Game;Emulator;
+StartupWMClass=z-game-hub

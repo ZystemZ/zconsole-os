@@ -14,15 +14,18 @@ class Scanner : public QObject {
     Q_PROPERTY(QString status READ status NOTIFY statusChanged)
     Q_PROPERTY(QVariantList candidates READ candidates NOTIFY candidatesChanged)
     Q_PROPERTY(QVariantList externalDevices READ externalDevices NOTIFY externalDevicesChanged)
+    Q_PROPERTY(bool romSearch READ romSearch NOTIFY romSearchChanged)
 public:
     explicit Scanner(GameCatalog *catalog, QObject *parent = nullptr);
     bool busy() const;
     QString status() const;
     QVariantList candidates() const;
     QVariantList externalDevices() const;
+    bool romSearch() const;
     Q_INVOKABLE void removeCandidate(int index);
     Q_INVOKABLE void scanCommonLocations();
     Q_INVOKABLE void scanDirectory(const QString &path);
+    Q_INVOKABLE void scanRomsDirectory(const QString &path);
     Q_INVOKABLE void scanExternalLaunchers();
     Q_INVOKABLE void scanSteamLibraries();
     Q_INVOKABLE void refreshExternalDevices();
@@ -33,12 +36,14 @@ signals:
     void scanFinished(int filesFound);
     void candidatesChanged();
     void externalDevicesChanged();
+    void romSearchChanged();
     void deviceConnected(const QString &path, const QString &label);
     void deviceDisconnected(const QString &path);
 
 private:
     GameCatalog *m_catalog;
     bool m_busy = false;
+    bool m_romSearch = false;
     QString m_status = "Pronto";
     QVariantList m_candidates;
     QVariantList m_externalDevices;
@@ -46,6 +51,6 @@ private:
     QTimer m_deviceTimer;
     void setStatus(const QString &s);
     void setBusy(bool b);
-    void scanRoots(const QStringList &roots);
+    void scanRoots(const QStringList &roots, bool romMode = false);
     bool isExternalDevicePath(const QString &path) const;
 };

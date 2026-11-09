@@ -85,8 +85,8 @@ fi
 ### ANACONDA INSTALLER BRANDING
 echo "Branding the Anaconda Installer..."
 mkdir -p /usr/share/anaconda/pixmaps
-cp -f /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/sidebar-logo.png
-cp -f /usr/share/zconsole/logo.png /usr/share/anaconda/pixmaps/topbar-logo.png
+cp -f /usr/share/zconsole/logo_wordmark.png /usr/share/anaconda/pixmaps/sidebar-logo.png
+cp -f /usr/share/zconsole/logo_wordmark.png /usr/share/anaconda/pixmaps/topbar-logo.png
 if [ -f /etc/anaconda/anaconda.conf ]; then
     sed -i 's/productname = .*/productname = ZConsole OS/' /etc/anaconda/anaconda.conf
 fi
@@ -174,8 +174,17 @@ dnf install -y --skip-unavailable \
     rclone htop fastfetch tmux vim wget curl flatpak zip unzip \
     plymouth-scripts mpv python3-fastapi python3-uvicorn brightnessctl wireplumber power-profiles-daemon || true
 
-# Build the Qt Quick launcher supplied with the ZConsole Hub.
-# Keep runtime modules explicit; qt6-qtbase carries the QSQLITE driver.
+# Install a real browser for the console and the system URL handler used by Qt.
+# Keep this separate from the optional package batch above so a missing browser
+# cannot be silently ignored by its best-effort error handling.
+dnf install -y chromium xdg-utils qt6-qtsvg
+if ! command -v chromium-browser >/dev/null 2>&1; then
+    echo "Chromium is required for the ZConsole Web Browser launcher." >&2
+    exit 1
+fi
+
+# Build the upstream ZGameHub Qt Quick application.
+# Keep runtime modules explicit; qt6-qtbase carries Qt Network and QSQLITE.
 echo "Building Z-GAME HUB..."
 dnf install -y \
     cmake ninja-build gcc-c++ \

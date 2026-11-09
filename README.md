@@ -317,15 +317,21 @@ These are images derived from this template (or similar enough to this template)
 - [Amy OS](https://github.com/astrovm/amyos)
 - [VeneOS](https://github.com/Venefilyn/veneos)
 
-## ZConsole OS V2: Big Picture e ponte local
+## ZConsole OS V2: ZGameHub, navegador Web e ponte local
 
-A imagem agora inclui o **Z-GAME HUB** nativo em Qt Quick/QML, compilado durante o build do sistema. Ele inicia automaticamente em tela cheia quando a sessão gráfica abre. O botão **Voltar ao desktop** pede confirmação e encerra somente o processo do Hub; a sessão Plasma/GNOME permanece aberta. O Hub também fica disponível no menu de aplicativos como `Z-GAME HUB`.
+A imagem compila a versão upstream do **Z-GAME HUB** em Qt Quick/QML a partir de `ZystemZ/ZGameHub`. O snapshot de código fica em `build_files/z-game-hub`; a revisão de origem e as instruções para atualizá-la estão em `build_files/z-game-hub/UPSTREAM.md`. O build instala os runtimes Qt necessários, o catálogo SQLite, recursos QML, atalhos de menu e o autostart gráfico. Após o login gráfico, o Hub inicia em tela cheia. **Voltar ao desktop** pede confirmação e encerra somente o Hub, mantendo a sessão Plasma/GNOME aberta.
 
-O Z-GameStore V2 e o launcher `/usr/bin/zgamestore-gui` continuam instalados como interface alternativa, mas deixam de iniciar automaticamente. A opção **Z-GameStore V2** no menu lateral do Hub abre a interface antiga em modo kiosk. O Hub usa catálogo SQLite próprio; a ponte local do Z-Overlay continua separada.
+O Hub fornece uma biblioteca local de jogos e aplicativos, suporte a ROMs via emulador configurado, integração com launchers disponíveis no host, Quiver e criação/execução de ZCARDs. A página **Loja e descoberta** também abre o Z-GameStore legado e o navegador Web. Steam, Heroic, Lutris, Bottles, jogos, ROMs e BIOS não são redistribuídos pelo Hub: o scanner usa os aplicativos e arquivos já instalados ou fornecidos pelo usuário. O Flatpak e o RetroArch continuam disponíveis na imagem.
+
+A compilação inclui Chromium como navegador do sistema e o atalho **Navegador Web** no menu de aplicativos. O Z-GameStore legado e `/usr/bin/zgamestore-gui` permanecem instalados; a opção correspondente no Hub continua abrindo a interface anterior. O catálogo do Hub e a ponte local do Z-Overlay são componentes separados.
 
 A unidade `zconsole-local-api.service` expõe apenas loopback e nunca deve ser publicada na rede. Ela fornece telemetria e controles para o Z-Overlay, com tratamento seguro quando um comando não existe ou quando o hardware não oferece o recurso.
 
-O código do Hub está em `build_files/z-game-hub`. A imagem instala os módulos Qt necessários para execução e remove os pacotes de desenvolvimento após a compilação.
+### Tela de inicialização e ISO
+
+O tema Plymouth usa `system_files/usr/share/zconsole/boot_splash.png`; esse arquivo já corresponde exatamente à imagem de carregamento enviada. O wordmark transparente extraído da mesma arte fica em `system_files/usr/share/zconsole/logo_wordmark.png` e é aplicado à barra lateral e ao cabeçalho do instalador Anaconda. O logo quadrado de controle existente permanece preservado.
+
+Para gerar uma ISO em um PC comum, execute o workflow [Build disk images](https://github.com/ZystemZ/zconsole-os/actions/workflows/build-disk.yml) na branch `main`, selecione `amd64` e, após concluir o build da imagem de sistema, baixe `artifact-anaconda-iso` na página da execução. O artifact fica disponível por 30 dias. A criação de um GitHub Release público é opcional e desativada por padrão.
 
 | Endpoint | Função |
 |---|---|
