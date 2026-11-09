@@ -6,6 +6,23 @@ if [ -d "/ctx/system_files" ]; then
     cp -avf "/ctx/system_files"/. /
 fi
 
+# Fedora 45 moved packaged repository definitions to /usr/share/dnf5/repos.d.
+# The legacy anaconda-iso resolver in bootc-image-builder still reads
+# /etc/yum.repos.d, so expose vendor repo files there without replacing any
+# image-specific repository overrides.
+FEDORA_DNF_REPOS="/usr/share/dnf5/repos.d"
+LEGACY_DNF_REPOS="/etc/yum.repos.d"
+if [ -d "$FEDORA_DNF_REPOS" ]; then
+    mkdir -p "$LEGACY_DNF_REPOS"
+    for repo_file in "$FEDORA_DNF_REPOS"/*.repo; do
+        [ -f "$repo_file" ] || continue
+        legacy_repo="$LEGACY_DNF_REPOS/${repo_file##*/}"
+        if [ ! -e "$legacy_repo" ]; then
+            cp -p "$repo_file" "$legacy_repo"
+        fi
+    done
+fi
+
 ### Fix GPG key issues
 echo "Fixing GPG key issues..."
 if [ -d /etc/yum.repos.d/ ]; then
