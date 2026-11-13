@@ -1027,6 +1027,122 @@ ApplicationWindow {
     }
 
     Component {
+        id: zbuildPage
+        ScrollView {
+            clip: true
+            ColumnLayout {
+                width: pageLoader.width
+                spacing: 14
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 176
+                    radius: 22
+                    color: "#0A1E18"
+                    border.color: neon
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 22
+                        spacing: 8
+                        Text { text: "ZBUILD • GODOT 4.x"; color: neon; font.pixelSize: 11; font.bold: true; font.letterSpacing: 3 }
+                        Text { text: "Transforme seu projeto em um cartucho ZCARD."; color: ink; font.pixelSize: 24; font.bold: true; wrapMode: Text.Wrap }
+                        Text {
+                            text: "O ZBuild chama o exportador oficial do Godot em modo headless. O jogo continua sendo um executável nativo Godot; ele não é convertido para ZEXE."
+                            color: "#A5C5BE"; wrapMode: Text.Wrap; Layout.fillWidth: true
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    radius: 18
+                    color: "#07130F"
+                    border.color: "#1D6A52"
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 18
+                        spacing: 11
+                        Text { text: "CONFIGURAÇÃO DA EXPORTAÇÃO"; color: ink; font.pixelSize: 13; font.bold: true; font.letterSpacing: 1 }
+                        Text { text: "Pasta do projeto Godot"; color: muted; font.pixelSize: 11 }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            ZTextField { id: zbuildProject; Layout.fillWidth: true; placeholderText: "Diretório que contém project.godot" }
+                            ZButton { text: "Procurar…"; onClicked: zbuildProjectDialog.open() }
+                        }
+                        Text { text: "Arquivo de saída"; color: muted; font.pixelSize: 11 }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            ZTextField { id: zbuildOutput; Layout.fillWidth: true; placeholderText: "Caminho para MeuJogo.zcard" }
+                            ZButton { text: "Salvar como…"; onClicked: zbuildOutputDialog.open() }
+                        }
+                        Text { text: "Destinos"; color: muted; font.pixelSize: 11 }
+                        ZComboBox {
+                            id: zbuildTargets
+                            Layout.fillWidth: true
+                            model: ["windows", "linux", "dual", "android", "all"]
+                            currentIndex: 2
+                        }
+                        Text { text: "Executável Godot (opcional)"; color: muted; font.pixelSize: 11 }
+                        ZTextField { id: zbuildGodotBinary; Layout.fillWidth: true; placeholderText: "Deixe vazio para detectar Godot no PATH" }
+                        ZButton {
+                            Layout.fillWidth: true
+                            accent: true
+                            enabled: !zbuildService.busy
+                            text: zbuildService.busy ? "Exportando projeto…" : "EXPORTAR E GERAR ZCARD"
+                            onClicked: zbuildService.buildGodot(zbuildProject.text, zbuildOutput.text, zbuildTargets.currentText, zbuildGodotBinary.text)
+                        }
+                        Text {
+                            text: zbuildService.status
+                            color: zbuildService.status.toLowerCase().indexOf("falh") >= 0 || zbuildService.status.toLowerCase().indexOf("não") >= 0 ? "#F09C88" : "#91E9C5"
+                            wrapMode: Text.Wrap
+                            Layout.fillWidth: true
+                            font.pixelSize: 11
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 210
+                    radius: 18
+                    color: "#050D0A"
+                    border.color: "#12382F"
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 14
+                        spacing: 6
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "LOG DA EXPORTAÇÃO"; color: neon; font.pixelSize: 10; font.bold: true; font.letterSpacing: 2 }
+                            Item { Layout.fillWidth: true }
+                            Text { text: zbuildService.busy ? "EM EXECUÇÃO" : "PRONTO"; color: zbuildService.busy ? "#F2CB73" : muted; font.pixelSize: 10; font.bold: true }
+                        }
+                        ZTextArea {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            readOnly: true
+                            text: zbuildService.report
+                            color: "#9CD4BD"
+                            wrapMode: Text.Wrap
+                            background: Rectangle { color: "transparent" }
+                            font.family: "Consolas"
+                            font.pixelSize: 10
+                        }
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Pré-requisitos: Godot 4.x, export templates da mesma versão e presets criados no projeto. Para Android, configure o preset Gradle, Android SDK/JDK e assinatura. O cartucho usa o formato ZIP legado compatível com o runtime atual."
+                    color: muted
+                    wrapMode: Text.Wrap
+                    font.pixelSize: 11
+                }
+            }
+        }
+    }
+
+    Component {
         id: settingsPage
         ColumnLayout {
             spacing: 14
@@ -1256,6 +1372,21 @@ ApplicationWindow {
             }
         }
         background: Rectangle { color: "#081713"; radius: 20; border.width: 1; border.color: "#1D6A52" }
+    }
+
+    FileDialog {
+        id: zbuildProjectDialog
+        title: "Selecionar projeto Godot"
+        fileMode: FileDialog.SelectFolder
+        onAccepted: zbuildProject.text = gameCatalog.localPathFromUrl(selectedFolder.toString())
+    }
+
+    FileDialog {
+        id: zbuildOutputDialog
+        title: "Salvar cartucho ZCARD"
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Cartucho ZCARD (*.zcard)", "Todos os arquivos (*)"]
+        onAccepted: zbuildOutput.text = gameCatalog.localPathFromUrl(selectedFile.toString())
     }
 
     FileDialog {
