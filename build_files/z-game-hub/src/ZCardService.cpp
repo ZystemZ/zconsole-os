@@ -370,6 +370,30 @@ QVariantMap ZCardService::resolveLaunchPlan() {
 #ifndef Q_OS_WIN
         output.setPermissions(output.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
 #endif
+
+        // Godot desktop exports commonly require a sidecar PCK (and may include
+        // native libraries). Materialize sibling artifacts beside the executable.
+        if (native && !nativeArtifacts.isEmpty()) {
+            const QString executableDirectory = QFileInfo(entry).path();
+            for (const QJsonValue &artifactValue : nativeArtifacts) {
+                const QString artifact = artifactValue.toString();
+                if (artifact.isEmpty() || artifact == entry || !safeEntry(artifact)) continue;
+                if (QFileInfo(artifact).path() != executableDirectory) continue;
+                QByteArray sidecar;
+                if (!readCardAsset(artifact, &sidecar, &error)) {
+                    plan["ok"] = false;
+                    plan["message"] = "Não foi possível materializar artefato complementar: " + artifact + " — " + error;
+                    return plan;
+                }
+                QFile sidecarOutput(QDir(cacheRoot).filePath(QFileInfo(artifact).fileName()));
+                if (!sidecarOutput.open(QIODevice::WriteOnly) || sidecarOutput.write(sidecar) != sidecar.size()) {
+                    plan["ok"] = false;
+                    plan["message"] = "Não foi possível gravar artefato complementar: " + artifact;
+                    return plan;
+                }
+                sidecarOutput.close();
+            }
+        }
     }
     if (native) {
 #if defined(Q_OS_WIN)
