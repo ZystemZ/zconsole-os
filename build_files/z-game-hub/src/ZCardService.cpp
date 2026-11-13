@@ -321,9 +321,36 @@ QVariantMap ZCardService::resolveLaunchPlan() {
     const QJsonObject object = document.object();
     const QString format = object.value("format").toString();
     const bool native = manifestEntry.endsWith("zgame.json") && format.startsWith("zgame-native-");
-    const QString entry = native ? object.value("executable").toString() : object.value("rom").toString();
-    if (entry.isEmpty() || !safeEntry(entry)) { plan["ok"] = false; plan["message"] = "Manifesto sem executável ou ROM seguro."; return plan; }
     QString platform = native ? object.value("platform").toString().toLower() : object.value("system").toString().toLower();
+    QString entry;
+
+    // Multi-target native cards may carry one executable per host platform.
+    // Keep backward compatibility with existing single-executable manifests.
+    if (native) {
+#if defined(Q_OS_WIN)
+        const QString host = "windows";
+#elif defined(Q_OS_MACOS)
+        const QString host = "macos";
+#elif defined(Q_OS_ANDROID)
+        const QString host = "android";
+#elif defined(Q_OS_LINUX)
+        const QString host = "linux";
+#else
+        const QString host = "unknown";
+#endif
+        const QJsonObject executables = object.value("executables").toObject();
+        const QJsonArray hostArtifacts = executables.value(host).toArray();
+        if (!hostArtifacts.isEmpty()) {
+            entry = hostArtifacts.first().toString();
+            platform = host;
+        } else {
+            entry = object.value("executable").toString();
+        }
+    } else {
+        entry = object.value("rom").toString();
+    }
+
+    if (entry.isEmpty() || !safeEntry(entry)) { plan["ok"] = false; plan["message"] = "Manifesto sem executável ou ROM seguro para esta plataforma."; return plan; }
     if (platform.isEmpty()) platform = native ? "native" : QFileInfo(entry).suffix().toLower();
 
     QString launchPath;
