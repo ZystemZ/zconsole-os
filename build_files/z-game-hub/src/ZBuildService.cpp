@@ -54,7 +54,9 @@ bool ZBuildService::buildGodot(const QString &projectPath,
     if (m_busy) return false;
 
     const QString project = QDir::cleanPath(projectPath.trimmed());
-    const QString output = QDir::cleanPath(outputPath.trimmed());
+    QString output = QDir::cleanPath(outputPath.trimmed());
+    if (!output.endsWith(QStringLiteral(".zcard"), Qt::CaseInsensitive))
+        output += QStringLiteral(".zcard");
     if (project.isEmpty() || output.isEmpty()) {
         setStatus(QStringLiteral("Selecione a pasta do projeto Godot e o arquivo ZCARD de saída."));
         return false;
