@@ -187,7 +187,7 @@ EOF
 echo "Installing Packages..."
 dnf install -y --skip-unavailable \
     retroarch retroarch-assets \
-    python3-pyserial python3-tkinter \
+    python3 python3-pyserial python3-tkinter \
     rclone htop fastfetch tmux vim wget curl flatpak zip unzip \
     plymouth-scripts mpv python3-fastapi python3-uvicorn brightnessctl wireplumber power-profiles-daemon || true
 
