@@ -22,6 +22,8 @@ qt_add_executable(z-game-hub
         src/QuiverIntegration.cpp
         src/ZCardService.h
         src/ZCardService.cpp
+        src/ZBuildService.h
+        src/ZBuildService.cpp
         src/zconsole/src/asset_runtime.cpp
         src/zconsole/src/runtime/asset_stream.cpp
         src/zconsole/src/zcard/virtual_card.cpp

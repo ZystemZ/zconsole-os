@@ -130,7 +130,7 @@ EOF
 
 ### EXECUTABLES AND SERVICES
 echo "Configuring ZConsole Executables and Services..."
-chmod +x /usr/bin/zgsdk /usr/bin/zconsole-cloud-sync /usr/bin/zgamestore /usr/bin/zgamestore-gui /usr/bin/zgamestore-gui-legacy /usr/bin/zconsole-setup /usr/bin/zconsole-startup-animation.sh /usr/lib/zconsole/zconsole_local_api.py
+chmod +x /usr/bin/zgsdk /usr/bin/zbuild /usr/bin/zconsole-cloud-sync /usr/bin/zgamestore /usr/bin/zgamestore-gui /usr/bin/zgamestore-gui-legacy /usr/bin/zconsole-setup /usr/bin/zconsole-startup-animation.sh /usr/lib/zconsole/zconsole_local_api.py
 
 # Ensure the startup service is robust
 cat << 'EOF' > /usr/lib/systemd/system/zconsole-startup.service
@@ -187,7 +187,7 @@ EOF
 echo "Installing Packages..."
 dnf install -y --skip-unavailable \
     retroarch retroarch-assets \
-    python3-pyserial python3-tkinter \
+    python3 python3-pyserial python3-tkinter \
     rclone htop fastfetch tmux vim wget curl flatpak zip unzip \
     plymouth-scripts mpv python3-fastapi python3-uvicorn brightnessctl wireplumber power-profiles-daemon || true
 
