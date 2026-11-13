@@ -11,6 +11,7 @@
 #include "Launcher.h"
 #include "QuiverIntegration.h"
 #include "ZCardService.h"
+#include "ZBuildService.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
@@ -39,6 +40,7 @@ int main(int argc, char *argv[]) {
     Launcher launcher;
     QuiverIntegration quiverIntegration;
     ZCardService zcardService;
+    ZBuildService zbuildService;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("gameCatalog", &catalog);
@@ -46,6 +48,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty("gameLauncher", &launcher);
     engine.rootContext()->setContextProperty("quiverIntegration", &quiverIntegration);
     engine.rootContext()->setContextProperty("zcardService", &zcardService);
+    engine.rootContext()->setContextProperty("zbuildService", &zbuildService);
     engine.loadFromModule("ZGameHub", "Main");
     if (engine.rootObjects().isEmpty()) return 4;
     return app.exec();
