@@ -322,6 +322,7 @@ QVariantMap ZCardService::resolveLaunchPlan() {
     const QString format = object.value("format").toString();
     const bool native = manifestEntry.endsWith("zgame.json") && format.startsWith("zgame-native-");
     QString platform = native ? object.value("platform").toString().toLower() : object.value("system").toString().toLower();
+    QJsonArray nativeArtifacts;
     QString entry;
 
     // Multi-target native cards may carry one executable per host platform.
@@ -339,9 +340,9 @@ QVariantMap ZCardService::resolveLaunchPlan() {
         const QString host = "unknown";
 #endif
         const QJsonObject executables = object.value("executables").toObject();
-        const QJsonArray hostArtifacts = executables.value(host).toArray();
-        if (!hostArtifacts.isEmpty()) {
-            entry = hostArtifacts.first().toString();
+        nativeArtifacts = executables.value(host).toArray();
+        if (!nativeArtifacts.isEmpty()) {
+            entry = nativeArtifacts.first().toString();
             platform = host;
         } else {
             entry = object.value("executable").toString();
