@@ -259,6 +259,7 @@ ApplicationWindow {
                         {label:"ROMs e BIOS", icon:"▣"},
                         {label:"Quiver", icon:"↗"},
                         {label:"ZCARD / arquivos", icon:"▤"},
+                        {label:"Godot / ZBuild", icon:"⚒"},
                         {label:"Configurações", icon:"⚙"}
                     ]
                     delegate: ZButton {
@@ -474,6 +475,7 @@ ApplicationWindow {
                     : window.activePage === "ROMs e BIOS" ? romsPage
                     : window.activePage === "Quiver" ? quiverPage
                     : window.activePage === "ZCARD / arquivos" ? zcardPage
+                    : window.activePage === "Godot / ZBuild" ? zbuildPage
                     : window.activePage === "Configurações" ? settingsPage
                     : null
             }
