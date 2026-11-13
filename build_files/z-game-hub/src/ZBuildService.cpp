@@ -53,14 +53,16 @@ bool ZBuildService::buildGodot(const QString &projectPath,
                                const QString &godotBinary) {
     if (m_busy) return false;
 
-    const QString project = QDir::cleanPath(projectPath.trimmed());
-    QString output = QDir::cleanPath(outputPath.trimmed());
-    if (!output.endsWith(QStringLiteral(".zcard"), Qt::CaseInsensitive))
-        output += QStringLiteral(".zcard");
-    if (project.isEmpty() || output.isEmpty()) {
+    const QString projectInput = projectPath.trimmed();
+    const QString outputInput = outputPath.trimmed();
+    if (projectInput.isEmpty() || outputInput.isEmpty()) {
         setStatus(QStringLiteral("Selecione a pasta do projeto Godot e o arquivo ZCARD de saída."));
         return false;
     }
+    const QString project = QDir::cleanPath(projectInput);
+    QString output = QDir::cleanPath(outputInput);
+    if (!output.endsWith(QStringLiteral(".zcard"), Qt::CaseInsensitive))
+        output += QStringLiteral(".zcard");
     if (!QFileInfo(project + QStringLiteral("/project.godot")).isFile()) {
         setStatus(QStringLiteral("A pasta selecionada não contém project.godot."));
         return false;
