@@ -10,6 +10,7 @@
 #include <QCryptographicHash>
 #include <QImage>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QMetaObject>
 #include <QStandardPaths>
