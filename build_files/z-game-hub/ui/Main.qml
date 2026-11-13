@@ -1376,10 +1376,9 @@ ApplicationWindow {
         background: Rectangle { color: "#081713"; radius: 20; border.width: 1; border.color: "#1D6A52" }
     }
 
-    FileDialog {
+    FolderDialog {
         id: zbuildProjectDialog
         title: "Selecionar projeto Godot"
-        fileMode: FileDialog.SelectFolder
         onAccepted: zbuildProject.text = gameCatalog.localPathFromUrl(selectedFolder.toString())
     }
 
